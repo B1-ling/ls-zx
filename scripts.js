@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('overlay');
 
     // 初始年份
-    let currentYear = 2021;
+    let currentYear = 2023;
 
     // 更新时间轴进度
     function updateTimeline(year) {
         if (!progress || !dot || !label) return; // 容错：元素不存在则返回
-        const totalYears = 2024 - 2021; // 总跨度：3年
-        const percent = ((year - 2021) / totalYears) * 100;
+        const totalYears = 2026 - 2023; // 总跨度：3年
+        const percent = ((year - 2023) / totalYears) * 100;
         progress.style.width = `${percent}%`;
         dot.style.left = `${percent}%`;
         label.textContent = `${year}年`;
@@ -96,3 +96,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
