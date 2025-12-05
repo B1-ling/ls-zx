@@ -1,0 +1,472 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", sans-serif;
+}
+
+body {
+    background-color: #f5f2e9;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* ---------------------------- */
+/* 默认样式 (桌面端) */
+/* ---------------------------- */
+.header {
+    background-color: #1a3656;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 60px;
+    /* 固定header高度，避免容器计算异常 */
+}
+
+.header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.4rem;
+}
+
+/* 桌面端隐藏菜单按钮 */
+.header .menu-toggle {
+    display: none;
+}
+
+.header .interactive {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+    /* 减去header固定高度 */
+}
+
+/* 左侧目录 */
+.sidebar {
+    width: 220px;
+    background-color: #1a3656;
+    color: white;
+    padding: 20px 0;
+    overflow-y: auto;
+    border-right: 1px solid #ddd;
+}
+
+.sidebar h3 {
+    padding: 0 20px 10px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar li {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+}
+
+.sidebar li:hover {
+    background-color: #2a5b8c;
+}
+
+.sidebar li.active {
+    background-color: #2a5b8c;
+    font-weight: bold;
+}
+
+.sidebar .year {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-left: 8px;
+    /* 优化年份显示位置 */
+}
+
+/* 主内容区 */
+.main {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* 桌面端时间轴 */
+.timeline {
+    background-color: white;
+    border: 2px solid #d3a45a;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.timeline h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.timeline-bar {
+    width: 100%;
+    height: 10px;
+    position: relative;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #f9f7f2;
+}
+
+.timeline-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #1a3656;
+    width: 100%;
+    border-radius: 5px;
+}
+
+.timeline-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #d3a45a;
+    width: 0;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.timeline-dot {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background-color: #1a3656;
+    border-radius: 50%;
+    z-index: 10;
+    border: 2px solid white;
+}
+
+.timeline-label {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #1a3656;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* 桌面端隐藏移动端时间轴 */
+.timeline-vertical {
+    display: none;
+}
+
+/* 章节内容 */
+.chapter {
+    background-color: white;
+    border: 2px solid #d3a45a;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.chapter h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #1a3656;
+    font-size: 1.2rem;
+}
+
+.chapter p {
+    margin: 10px 0;
+    color: #444;
+}
+
+/* 重要事件 */
+.events {
+    margin-top: 20px;
+}
+
+.event-item {
+    background-color: white;
+    border: 2px solid #d3a45a;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.event-header {
+    padding: 15px;
+    background-color: #f9f7f2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+
+.event-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #1a3656;
+}
+
+.event-icon {
+    width: 20px;
+    height: 20px;
+    background-color: #d3a45a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.event-time {
+    font-size: 0.8rem;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.event-desc {
+    padding: 15px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.expand-btn {
+    color: #d3a45a;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.event-content {
+    display: none;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.event-content.show {
+    display: block;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 小浮窗按钮 */
+.floating-button {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: #1a3656;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+/* ---------------------------- */
+/* 移动端样式 (768px以下) */
+/* ---------------------------- */
+@media screen and (max-width: 768px) {
+    .header {
+        padding: 12px 15px;
+        height: 56px;
+        /* 适配移动端header高度 */
+    }
+
+    /* 移动端显示菜单按钮 */
+    .header .menu-toggle {
+        display: block;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+        /* 移动端标题缩小 */
+    }
+
+    .header .interactive {
+        font-size: 0.8rem;
+    }
+
+    .container {
+        flex-direction: column;
+        height: auto;
+        /* 移动端取消固定高度 */
+    }
+
+    .sidebar {
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        padding-top: 60px;
+        /* 避免被header覆盖 */
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .overlay.show {
+        display: block;
+    }
+
+    .main {
+        padding: 15px;
+        padding-top: 70px;
+        /* 避免被header覆盖 */
+    }
+
+    /* 移动端隐藏桌面时间轴 */
+    .timeline {
+        display: none;
+    }
+
+    /* 移动端显示竖向时间轴 */
+    .timeline-vertical {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        position: relative;
+        padding-left: 30px;
+        border-left: 2px solid #d3a45a;
+        background: linear-gradient(to bottom, #fff, #f9f7f2);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .timeline-point {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 15px;
+    }
+
+    .timeline-point::before {
+        content: '';
+        position: absolute;
+        left: -22px;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        background-color: #d3a45a;
+        border-radius: 50%;
+        border: 2px solid #1a3656;
+    }
+
+    .timeline-point .time {
+        font-weight: bold;
+        color: #1a3656;
+    }
+
+    .timeline-point .desc {
+        color: #555;
+    }
+
+    .timeline-point:hover {
+        background-color: #f9f7f2;
+        border-radius: 6px;
+    }
+
+    .timeline-bar {
+        height: 8px;
+    }
+
+    .timeline-dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    .chapter h2 {
+        font-size: 1.1rem;
+    }
+
+    .chapter p,
+    .event-desc {
+        font-size: 0.9rem;
+    }
+
+    .sidebar li {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+
+    .floating-button {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+    }
+}
