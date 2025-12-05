@@ -1,4 +1,3 @@
-
 // 确保 DOM 加载完成后执行脚本
 document.addEventListener('DOMContentLoaded', function () {
     // 获取DOM元素
@@ -96,4 +95,3 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
