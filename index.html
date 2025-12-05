@@ -1,580 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>杭州市富阳区鹿山中学</title>
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: #647cca;
-            color: white;
-            padding: 10px 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        header nav {
-            text-align: center;
-        }
-
-        header h1:hover {
-            color: #ddd;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: color 0.3s ease;
-        }
-
-        header>div {
-            display: flex;
-            align-items: center;
-            padding: 10px 5%;
-            justify-content: flex-start;
-        }
-
-        nav {
-            margin-left: auto;
-        }
-
-        nav ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        nav ul li {
-            display: inline;
-            margin-left: 20px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-        }
-
-        nav ul li a:hover {
-            text-decoration: underline;
-            color: #ddd;
-            border-bottom: 2px solid #ddd;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
-        }
-
-        main {
-            padding: 20px;
-            margin-top: 80px;
-            background-color: #96f57a88;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #333;
-
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px 0;
-            background-color: #f1f1f1;
-        }
-
-        .section-title {
-            color: #4CAF50;
-            font-size: 26px;
-            font-weight: 700;
-            position: relative;
-            padding-left: 45px;
-            margin-bottom: 25px;
-        }
-
-        .section-title::before {
-            content: "🌿";
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 28px;
-            color: #4CAF50;
-        }
-
-        .section-title::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -6px;
-            width: 50px;
-            height: 3px;
-            background-color: #4CAF50;
-            border-radius: 2px;
-        }
-
-        .section-title:hover {
-            color: #333;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .section-content {
-            font-size: 16px;
-            line-height: 1.8;
-            text-align: justify;
-            margin: 0 5% 20px;
-        }
-
-        #home {
-            padding: 20px;
-            text-align: center;
-        }
-
-        #about {
-            background-color: rgb(166, 255, 225, 0.9);
-            padding: 30px;
-            border-radius: 15px;
-            margin: 30px 5%;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.35s ease;
-        }
-
-        #about:hover {
-            background-color: rgba(166, 255, 225, 0.95);
-            transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 8px 18px rgba(76, 175, 80, 0.2);
-        }
-
-        #services {
-            background-color: #e0f7fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        #gallery {
-            background-color: #fff3e0;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-
-        #events {
-            background-color: #e8f5e9;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        #contact {
-            background-color: #f3e5f5;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        #about,
-        #services,
-        #gallery,
-        #news,
-        #events,
-        #contact {
-            transition: background-color 0.3s ease,
-                transform 0.3s ease,
-                box-shadow 0.3s ease;
-            scroll-margin-top: 120px;
-        }
-
-        #about:hover,
-        #services:hover,
-        #gallery:hover,
-        #news:hover,
-        #events:hover,
-        #contact:hover {
-            background-color: #5cf3c6ab;
-            transform: scale(1.01);
-            box-shadow: 0 4px 10px rgba(177, 216, 3, 0.822);
-        }
-
-        #news {
-            background-color: #fce4ec;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 5%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-
-        header>div {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 5%;
-        }
-
-        .logo {
-            height: 60px;
-            width: auto;
-            margin-right: 15px;
-            border-radius: 50%;
-        }
-
-        .home-image {
-            width: 100%;
-            height: auto;
-            margin: 20px auto;
-            display: block;
-        }
-
-        .home-title {
-            font-size: 36px;
-            color: #161616;
-            margin-top: 0px;
-            margin-bottom: 0px;
-        }
-
-        .home-title2 {
-            font-size: 24px;
-            color: #222222;
-            margin-top: 1px;
-        }
-
-        .news-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            width: calc((100% - 2*2.5%) / 3);
-            box-sizing: border-box;
-        }
-
-        .news-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2.5%;
-            padding: 0 2%;
-            margin-top: 15px;
-            align-items: stretch;
-        }
-
-        .news-item {
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-            background-color: white;
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            position: relative;
-            transition: all 0.35s ease;
-        }
-
-        .news-date {
-            display: inline-block;
-            font-size: 13px;
-            color: #888;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .news-item h3 {
-            color: #333;
-            margin: 0 0 12px 0;
-            font-size: 19px;
-            line-height: 1.4;
-            transition: color 0.3s ease;
-        }
-
-        .news-item p {
-            color: #666;
-            font-size: 15px;
-            line-height: 1.7;
-            margin: 0 0 15px 0;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .news-tag {
-            display: inline-block;
-            font-size: 12px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            background-color: #f0f7ff;
-            color: #4285f4;
-            margin-top: auto;
-        }
-
-        .news-link:hover .news-item {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .news-link:hover .news-item h3 {
-            color: #647cca;
-        }
-
-        .news-tag:nth-of-type(2) {
-            background-color: #f6f6e9;
-            color: #8d8d00;
-        }
-
-        .news-tag:nth-of-type(3) {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
-
-        .gallery-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2%;
-            padding: 0 2%;
-            margin-top: 10px;
-            align-items: stretch;
-        }
-
-        .gallery-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            width: calc((100% - 2*2%) / 3);
-            box-sizing: border-box;
-            margin-bottom: 30px;
-        }
-
-        .gallery-item {
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 10px;
-            border-bottom: 1px solid #ddd;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .gallery-img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 10px;
-            display: block;
-        }
-
-        .gallery-link:hover .gallery-item {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .events-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2%;/ padding: 0 2%;
-            margin-top: 10px;
-        }
-
-        .event-item {
-            width: calc((100% - 2*2%) / 3);
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .event-date {
-            position: absolute;
-            top: -10px;
-            left: 20px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .event-item h3 {
-            color: #333;
-            margin-top: 15px;
-            margin-bottom: 10px;
-            font-size: 18px;
-        }
-
-        .event-item p {
-            color: #666;
-            font-size: 15px;
-            line-height: 1.6;
-            margin: 0;
-        }
-
-        .event-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(76, 175, 80, 0.15);
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>鹿山中学2026届1班电子纪念册</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 
 <body>
-    <header>
-        <div>
-            <img class="logo" src="img/logo.jpg">
-            <h1>杭州市富阳区鹿山中学</h1>
-            <nav>
-                <ul>
-                    <li><a href="#about">关于学校</a></li>
-                    <li><a href="#gallery">校园风光</a></li>
-                    <li><a href="#news">新闻资讯</a></li>
-                    <li><a href="#events">校园活动</a></li>
-                    <li><a href="#contact">联系我们</a></li>
-                </ul>
-            </nav>
+    <!-- 头部 -->
+    <div class="header">
+        <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
+        <h1><span>📚</span> 鹿山中学2026届1班电子纪念册</h1>
+        <div class="interactive">
+            <span>🔄</span> 互动电子版
         </div>
-    </header>
-    <main>
-        <section id="home">
-            <img class="home-image" src="img/641.gif" alt="学校图片">
-            <h2 class="home-title">鹿山中学</h2>
-            <h2 class="home-title2">呦呦鹿鸣 善文化</h2>
-        </section>
-        <section id="about">
-            <h2 class="section-title">关于学校</h2>
-            <p class="section-content">
-                杭州市富阳区鹿山中学是一所优秀的学校，致力于为学生提供优质的教育资源和良好的学习环境。杭州市富阳区一所公办初级中学<br><br>
-                杭州市富阳区鹿山中学成立于2006年11月20日，是由杭州市富阳区教育局举办的公立初中，2010年由原三山镇中学、上里中学和新桐乡中学合并组建。<br>
-                学校位于鹿山街道蒋家村金鑫路20号，现有30个教学班、1300名学生及133名教职工。办学理念以"为了每一个学生的充分发展"为核心，累计获得浙江省文明单位等二十余项荣誉。<br><br>
-                截至2024年，该校参与招投标项目达54次，并持续开展校园设施改造及教育教学资源采购。
-            </p>
-        </section>
-        <section id="gallery">
-            <h2 class="section-title">校园风光</h2>
-            <p class="section-content">校园环境优美，绿树成荫，是学生学习和生活的理想场所。</p>
-            <div class="gallery-cards">
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school2.jpg" alt="大厅风光" class="gallery-img">
-                        <h3>大厅</h3>
-                    </div>
-                </div>
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school1.jpg" alt="大门风光" class="gallery-img">
-                        <h3>大门</h3>
-                    </div>
-                </div>
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school3.jpg" alt="体育馆风光" class="gallery-img">
-                        <h3>体育馆</h3>
-                    </div>
-                </div>
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school4.jpg" alt="司令台风光" class="gallery-img">
-                        <h3>司令台</h3>
-                    </div>
-                </div>
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school5.jpg" alt="阶梯教室风光" class="gallery-img">
-                        <h3>阶梯教室</h3>
-                    </div>
-                </div>
-                <div class="gallery-link">
-                    <div class="gallery-item">
-                        <img src="img/school6.jpg" alt="教学楼风光" class="gallery-img">
-                        <h3>教学楼</h3>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section id="news">
-            <h2 class="section-title">新闻资讯</h2>
-            <p class="section-content">学校定期发布最新的新闻和活动信息，欢迎关注。</p>
-            <div class="news-cards">
-                <a href="https://mp.weixin.qq.com/s/NlBElo-fOfhFKI4ye6Uj2Q" class="news-link">
-                    <div class="news-item">
-                        <span class="news-date">2025-06-20</span>
-                        <h3>2025届毕业生毕业典礼在体育馆举行</h3>
-                        <p>2025年6月，学校成功举办了2025届毕业生毕业典礼，吸引了众多家长和学生参加。</p>
-                        <span class="news-tag">校园动态</span>
-                    </div>
-                </a>
-                <a href="https://mp.weixin.qq.com/s/Yurmj8VwQ5oFFrgV_sSSnA" class="news-link">
-                    <div class="news-item">
-                        <span class="news-date">2025-05-15</span>
-                        <h3>2025鹿山中学第三届古诗词大赛顺利举行</h3>
-                        <p>为了让同学们感受诗词的独特魅力，激发对传统文化的热爱，鹿山中学第三届诗词大赛翩然启幕。</p>
-                        <span class="news-tag">文化活动</span>
-                    </div>
-                </a>
-                <a href="https://mp.weixin.qq.com/s/EcoQjK9f9-F-I_ejTB-yrQ" class="news-link">
-                    <div class="news-item">
-                        <span class="news-date">2025-06-11</span>
-                        <h3>未成年人保护、防诈、禁毒法治教育</h3>
-                        <p>鹿山街道联合富阳区司法局到鹿山中学进行法治讲座，加强未成年人法律意识。</p>
-                        <span class="news-tag">安全教育</span>
-                    </div>
-                </a>
-            </div>
-        </section>
-        <section id="events">
-            <h2 class="section-title">校园活动</h2>
-            <p class="section-content">学校组织丰富多彩的校园活动，促进学生全面发展。</p>
-            <div class="events-cards">
-                <div class="event-item">
-                    <div class="event-date">
-                        <span class="month">每年10月</span>
-                    </div>
-                    <h3>运动会</h3>
-                    <p>学校年度盛事，包含田径、团体项目等，学生全员参与，展现体育精神与班级凝聚力。</p>
-                </div>
-                <div class="event-item">
-                    <div class="event-date">
-                        <span class="month">每年5月</span>
-                    </div>
-                    <h3>鹿鸣杯联赛</h3>
-                    <p>七年级足球赛、八年级篮球赛，以班级为单位竞技，培养团队协作与竞技精神。</p>
-                </div>
-                <div class="event-item">
-                    <div class="event-date">
-                        <span class="month">每年4月</span>
-                    </div>
-                    <h3>诗词大会</h3>
-                    <p>全校参与的诗词竞赛，涵盖背诵、对答、创作环节，弘扬传统文化，提升文学素养。</p>
-                </div>
-            </div>
-        </section>
-        <section id="contact">
-            <h2 class="section-title">联系我们</h2>
-            <p class="section-content">如需了解更多信息，请通过以下方式与我们联系。</p>
-            <p style="text-align:center;line-height:2;">地址：杭州市富阳区鹿山街道蒋家村金鑫路20号</p>
-            <p style="text-align:center;line-height:2;">电话：0571-63312345</p>
+    </div>
 
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2025 杭州市富阳区鹿山中学</p>
-    </footer>
+    <!-- 侧边栏遮罩层 -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- 主体容器 -->
+    <div class="container">
+        <!-- 左侧目录 -->
+        <div class="sidebar" id="sidebar">
+            <h3>章节目录</h3>
+            <ul id="chapter-list">
+                <li data-year="2023" data-chapter="第一">
+                    第一章：初识校园 <span class="year">2023</span>
+                </li>
+                <li data-year="2024" data-chapter="第二">
+                    第二章：学习时光 <span class="year">2024</span>
+                </li>
+                <li data-year="2024" data-chapter="第三">
+                    第三章：青春活动 <span class="year">2024</span>
+                </li>
+                <li data-year="2025" data-chapter="第四">
+                    第四章：成长足迹 <span class="year">2025</span>
+                </li>
+                <li data-year="2025" data-chapter="第五">
+                    第五章：备战高考 <span class="year">2025</span>
+                </li>
+                <li data-year="2026" data-chapter="第六">
+                    第六章：毕业季 <span class="year">2026</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main">
+            <!-- 时间轴 (桌面) -->
+            <div class="timeline">
+                <h3><span>📈</span> 历史时间线</h3>
+                <div class="timeline-bar">
+                    <div class="timeline-track"></div>
+                    <div class="timeline-progress" id="progress"></div>
+                    <div class="timeline-dot" id="dot"></div>
+                    <div class="timeline-label" id="label">2021年</div>
+                </div>
+            </div>
+
+            <!-- 时间轴 (移动端) -->
+            <div class="timeline-vertical">
+                <div class="timeline-point">
+                    <div class="time">2023年</div>
+                    <div class="desc">入学、军训、第一次班会</div>
+                </div>
+                <div class="timeline-point">
+                    <div class="time">2024年</div>
+                    <div class="desc">运动会、文艺汇演、社团活动</div>
+                </div>
+                <div class="timeline-point">
+                    <div class="time">2025年</div>
+                    <div class="desc">百日誓师、成人礼、模拟考试</div>
+                </div>
+                <div class="timeline-point">
+                    <div class="time">2026年</div>
+                    <div class="desc">毕业典礼、散伙饭、各奔东西</div>
+                </div>
+            </div>
+
+            <!-- 章节内容 -->
+            <div class="chapter" id="chapter-content">
+                <h2><span>📘</span> 第一章：初识校园</h2>
+                <p>那是一个阳光明媚的九月，我们怀着忐忑又兴奋的心情踏入了这所熟悉的校园。从陌生到熟悉，从拘谨到自然，一班的故事就这样开始了。</p>
+                <p>第一堂班会课上，班主任李老师让我们做自我介绍。有人紧张得说不出话，有人自信满满地展示才艺，还有人因为太紧张而说错了名字。这些青涩的瞬间，成为了我们班级记忆的开端。</p>
+                <p>军训的日子里，我们一起在烈日下站军姿，一起在雨中唱军歌，一起因为动作不协调而被罚。虽然辛苦，但那份同甘共苦的情谊，让我们真正成为了一个集体。</p>
+            </div>
+
+            <!-- 重要事件 -->
+            <div class="events">
+                <div class="event-item">
+                    <div class="event-header" onclick="toggleEvent(this)">
+                        <div class="event-title">
+                            <div class="event-icon">⚔️</div>
+                            <span>百日誓师</span>
+                        </div>
+                        <div class="expand-btn">收起详情 ▲</div>
+                    </div>
+                    <div class="event-content show">
+                        <div class="event-desc">
+                            <p><strong>向高考宣战的庄严时刻</strong></p>
+                            <p>距离高考还有100天的那天，学校举行了誓师大会。我们在国旗下庄严宣誓，要为自己的梦想而奋斗。每个人的眼中都闪烁着坚定的光芒，那一刻，我们仿佛已经看到了胜利的曙光。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-item">
+                    <div class="event-header" onclick="toggleEvent(this)">
+                        <div class="event-title">
+                            <div class="event-icon">🎓</div>
+                            <span>毕业典礼</span>
+                        </div>
+                        <div class="expand-btn">查看详情 ▼</div>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-desc">
+                            <p><strong>青春的告别仪式</strong></p>
+                            <p>毕业那天，天空微蓝，阳光正好。我们穿着学士服，在操场上合影留念。老师站在讲台上，眼含热泪地祝福我们。那一刻，我们明白，一段旅程结束了，另一段人生正等待启程。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="event-item">
+                    <div class="event-header" onclick="toggleEvent(this)">
+                        <div class="event-title">
+                            <div class="event-icon">🍻</div>
+                            <span>散伙饭</span>
+                        </div>
+                        <div class="expand-btn">查看详情 ▼</div>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-desc">
+                            <p><strong>最后的相聚</strong></p>
+                            <p>最后一顿晚餐，大家围坐在餐厅里，笑声不断。有人喝多了，有人哭了，有人默默发朋友圈。桌上摆满了零食和饮料，气氛热烈又感伤。这是属于一班人的最后一晚。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动按钮 -->
+    <div class="floating-button" onclick="alert('欢迎使用一班历史书！')">📖</div>
+    <script src="scripts.js"></script>
+    
 </body>
 
 </html>
