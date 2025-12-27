@@ -2,151 +2,85 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>鹿山中学2026届1班电子纪念册</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青春纪念册 - 我们的初中时光</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/all.min.css">
 </head>
 
 <body>
-    <!-- 头部 -->
-    <div class="header">
-        <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-        <h1><span>📚</span> 鹿山中学2026届1班电子纪念册</h1>
-        <div class="interactive">
-            <span>🔄</span> 互动电子版
+    <!-- 顶部标题栏 -->
+    <header class="page-header">
+        <div class="header-left">初中时光</div>
+        <div class="header-title">青春纪念册</div>
+    </header>
+
+    <!-- 移动端侧边栏切换按钮（优化：用Font Awesome图标替代☰，显示更统一） -->
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+<div class="flex-wrapper">
+    <!-- 侧边栏（修复：添加关闭按钮，匹配JS中的closeBtn） -->
+    <div class="sidebar" id="sidebar">
+        <!-- 侧边栏关闭按钮（移动端显示） -->
+        <button class="close-btn" id="closeBtn">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="chapter-buttons">
+            <button class="chapter-btn" data-year="2023" data-chapter="第一">第一章：初识校园</button>
+            <button class="chapter-btn" data-year="2024" data-chapter="第二">第二章：学习时光</button>
+            <button class="chapter-btn" data-year="2024" data-chapter="第三">第三章：青春活动</button>
+            <button class="chapter-btn" data-year="2025" data-chapter="第四">第四章：成长足迹</button>
+            <button class="chapter-btn" data-year="2025" data-chapter="第五">第五章：备战中考</button>
+            <button class="chapter-btn" data-year="2026" data-chapter="第六">第六章：毕业季</button>
         </div>
     </div>
 
-    <!-- 侧边栏遮罩层 -->
-    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-    <!-- 主体容器 -->
-    <div class="container">
-        <!-- 左侧目录 -->
-        <div class="sidebar" id="sidebar">
-            <h3>章节目录</h3>
-            <ul id="chapter-list">
-                <li data-year="2023" data-chapter="第一">
-                    第一章：初识校园 <span class="year">2023</span>
-                </li>
-                <li data-year="2024" data-chapter="第二">
-                    第二章：学习时光 <span class="year">2024</span>
-                </li>
-                <li data-year="2024" data-chapter="第三">
-                    第三章：青春活动 <span class="year">2024</span>
-                </li>
-                <li data-year="2025" data-chapter="第四">
-                    第四章：成长足迹 <span class="year">2025</span>
-                </li>
-                <li data-year="2025" data-chapter="第五">
-                    第五章：备战高考 <span class="year">2025</span>
-                </li>
-                <li data-year="2026" data-chapter="第六">
-                    第六章：毕业季 <span class="year">2026</span>
-                </li>
-            </ul>
-        </div>
+    <!-- 优化：添加main标签提升语义化 -->
+    <main class="main-container">
+        <!-- 弹幕容器 -->
+        <div id="danmakuContainer" class="danmaku-container"></div>
 
         <!-- 主内容区 -->
-        <div class="main">
-            <!-- 时间轴 (桌面) -->
+        <div class="main-content">
+            <!-- 时间轴 -->
             <div class="timeline">
-                <h3><span>📈</span> 历史时间线</h3>
-                <div class="timeline-bar">
-                    <div class="timeline-track"></div>
-                    <div class="timeline-progress" id="progress"></div>
-                    <div class="timeline-dot" id="dot"></div>
-                    <div class="timeline-label" id="label">2021年</div>
+                <div class="timeline-track">
+                    <div class="timeline-years">
+                        <span data-year="2023">2023</span>
+                        <span data-year="2024">2024</span>
+                        <span data-year="2025">2025</span>
+                        <span data-year="2026">2026</span>
+                    </div>
+                    <div id="timelineMarker" class="timeline-marker"></div>
                 </div>
             </div>
 
-            <!-- 时间轴 (移动端) -->
-            <div class="timeline-vertical">
-                <div class="timeline-point">
-                    <div class="time">2023年</div>
-                    <div class="desc">入学、军训、第一次班会</div>
-                </div>
-                <div class="timeline-point">
-                    <div class="time">2024年</div>
-                    <div class="desc">运动会、文艺汇演、社团活动</div>
-                </div>
-                <div class="timeline-point">
-                    <div class="time">2025年</div>
-                    <div class="desc">百日誓师、成人礼、模拟考试</div>
-                </div>
-                <div class="timeline-point">
-                    <div class="time">2026年</div>
-                    <div class="desc">毕业典礼、散伙饭、各奔东西</div>
-                </div>
-            </div>
+            <!-- 内容卡片 -->
+            <div class="content-card" id="chapterContent"></div>
 
-            <!-- 章节内容 -->
-            <div class="chapter" id="chapter-content">
-                <h2><span>📘</span> 第一章：初识校园</h2>
-                <p>那是一个阳光明媚的九月，我们怀着忐忑又兴奋的心情踏入了这所熟悉的校园。从陌生到熟悉，从拘谨到自然，一班的故事就这样开始了。</p>
-                <p>第一堂班会课上，班主任李老师让我们做自我介绍。有人紧张得说不出话，有人自信满满地展示才艺，还有人因为太紧张而说错了名字。这些青涩的瞬间，成为了我们班级记忆的开端。</p>
-                <p>军训的日子里，我们一起在烈日下站军姿，一起在雨中唱军歌，一起因为动作不协调而被罚。虽然辛苦，但那份同甘共苦的情谊，让我们真正成为了一个集体。</p>
-            </div>
-
-            <!-- 重要事件 -->
-            <div class="events">
-                <div class="event-item">
-                    <div class="event-header" onclick="toggleEvent(this)">
-                        <div class="event-title">
-                            <div class="event-icon">⚔️</div>
-                            <span>百日誓师</span>
-                        </div>
-                        <div class="expand-btn">收起详情 ▲</div>
-                    </div>
-                    <div class="event-content show">
-                        <div class="event-desc">
-                            <p><strong>向高考宣战的庄严时刻</strong></p>
-                            <p>距离高考还有100天的那天，学校举行了誓师大会。我们在国旗下庄严宣誓，要为自己的梦想而奋斗。每个人的眼中都闪烁着坚定的光芒，那一刻，我们仿佛已经看到了胜利的曙光。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="event-item">
-                    <div class="event-header" onclick="toggleEvent(this)">
-                        <div class="event-title">
-                            <div class="event-icon">🎓</div>
-                            <span>毕业典礼</span>
-                        </div>
-                        <div class="expand-btn">查看详情 ▼</div>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-desc">
-                            <p><strong>青春的告别仪式</strong></p>
-                            <p>毕业那天，天空微蓝，阳光正好。我们穿着学士服，在操场上合影留念。老师站在讲台上，眼含热泪地祝福我们。那一刻，我们明白，一段旅程结束了，另一段人生正等待启程。</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="event-item">
-                    <div class="event-header" onclick="toggleEvent(this)">
-                        <div class="event-title">
-                            <div class="event-icon">🍻</div>
-                            <span>散伙饭</span>
-                        </div>
-                        <div class="expand-btn">查看详情 ▼</div>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-desc">
-                            <p><strong>最后的相聚</strong></p>
-                            <p>最后一顿晚餐，大家围坐在餐厅里，笑声不断。有人喝多了，有人哭了，有人默默发朋友圈。桌上摆满了零食和饮料，气氛热烈又感伤。这是属于一班人的最后一晚。</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- 事件容器 -->
+            <div id="events-container" class="events-container"></div>
         </div>
-    </div>
+    </main>
+</div>
 
-    <!-- 浮动按钮 -->
-    <div class="floating-button" onclick="alert('欢迎使用一班历史书！')">📖</div>
+    <!-- 弹幕开关按钮（优化：用Font Awesome图标，提升视觉） -->
+    <button id="danmakuToggleBtn" class="danmaku-btn">
+        <i class="fas fa-comment-slash"></i> 关闭弹幕
+    </button>
+
+    <!-- 页脚（优化：调整位置，避免被弹幕按钮遮挡） -->
+    <footer class="footer">
+        <p>✨ 青春不散场，我们不说再见 ✨</p>
+    </footer>
+
+    <!-- 优化：脚本放在body底部，确保DOM加载完成 -->
     <script src="scripts.js"></script>
-    
 </body>
 
 </html>
