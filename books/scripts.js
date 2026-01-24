@@ -1,5 +1,5 @@
 // ===================== 核心配置 =====================
-// 1. 各章节专属内容&事件数据（修复：第五章标题从“备战高考”改为“备战中考”）
+// 1. 各章节专属内容&事件数据
 const chapterContentMap = {
     "第一": {
         title: "七年级上：班级的建立与巩固",
@@ -470,7 +470,7 @@ function updateChapterContent(chapterKey) {
     let eventsHTML = '';
     data.events.forEach((event, index) => {
         const isOpen = index === 0 ? 'show' : '';
-        const btnText = index === 0 ? '收起详情 ▲' : '查看详情 ▼';
+        const isOpenClass = index === 0 ? 'open' : '';
 
         let eventDescHTML = '';
         // 解析图片配置
@@ -511,6 +511,8 @@ function updateChapterContent(chapterKey) {
             }
         });
 
+        const btnText = index === 0 ? '收起详情' : '查看详情';
+        const arrowDirection = index === 0 ? '▲' : '▼';
         eventsHTML += `
             <div class="event-item">
                 <div class="event-header" onclick="toggleEvent(this)">
@@ -518,7 +520,10 @@ function updateChapterContent(chapterKey) {
                         <div class="event-icon">${event.icon}</div>
                         <span>${event.title}</span>
                     </div>
-                    <div class="expand-btn">${btnText}</div>
+                    <div class="expand-btn ${isOpenClass}">
+                        <span class="btn-text">${btnText}</span>
+                        <span class="btn-arrow">${arrowDirection}</span>
+                    </div>
                 </div>
                 <div class="event-content ${isOpen}">
                     <div class="event-desc">
@@ -549,14 +554,24 @@ function updateTimeline(year) {
 function toggleEvent(header) {
     const content = header.nextElementSibling;
     const btn = header.querySelector('.expand-btn');
-    if (!content || !btn) return;
+    const btnText = btn.querySelector('.btn-text');
+    const btnArrow = btn.querySelector('.btn-arrow');
+    if (!content || !btn || !btnText || !btnArrow) return;
 
     // 优化：添加过渡动画（需配合CSS：.event-content { transition: all 0.3s; }）
     content.classList.toggle('show');
-    btn.textContent = content.classList.contains('show') ? '收起详情 ▲' : '查看详情 ▼';
+    const isOpen = content.classList.contains('show');
+    
+    // 更新按钮文字和箭头方向
+    btnText.textContent = isOpen ? '收起详情' : '查看详情';
+    btnArrow.textContent = isOpen ? '▲' : '▼';
+    
     // 修复：opacity+height过渡更自然
-    content.style.opacity = content.classList.contains('show') ? 1 : 0;
-    content.style.maxHeight = content.classList.contains('show') ? '2000px' : '0';
+    content.style.opacity = isOpen ? 1 : 0;
+    content.style.maxHeight = isOpen ? '2000px' : '0';
+    
+    // 添加open类以实现箭头旋转动画
+    btn.classList.toggle('open');
 }
 
 // ===================== 弹幕功能（核心修复：按钮表情包不消失） =====================
