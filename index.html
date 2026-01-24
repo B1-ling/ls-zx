@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青春纪念册 - 「笃行致远·拾光成纪」企划</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/all.min.css">
+</head>
+
+<body>
+    <!-- 顶部标题栏 -->
+    <header class="page-header">
+        <div class="header-left">「笃行致远·拾光成纪」</div>
+        <div class="header-title">青春纪念册</div>
+    </header>
+
+    <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+<div class="flex-wrapper">
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" id="closeBtn">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="chapter-buttons">
+            <button class="chapter-btn" data-year="2023" data-chapter="第一">七年级上：班级的建立与巩固</button>
+            <button class="chapter-btn" data-year="2024" data-chapter="第二">七年级下：班级的改革与发展</button>
+            <button class="chapter-btn" data-year="2024" data-chapter="第三">八年级上：班级的改革与发展</button>
+            <button class="chapter-btn" data-year="2025" data-chapter="第四">八年级下：初中过半</button>
+            <button class="chapter-btn" data-year="2025" data-chapter="第五">第五章：备战中考</button>
+            <button class="chapter-btn" data-year="2026" data-chapter="第六">第六章：毕业季</button>
+        </div>
+    </div>
+
+    <main class="main-container">
+        <!-- 弹幕容器 -->
+        <div id="danmakuContainer" class="danmaku-container"></div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 时间轴 -->
+            <div class="timeline">
+                <div class="timeline-track">
+                    <div class="timeline-years">
+                        <span data-year="2023">2023</span>
+                        <span data-year="2024">2024</span>
+                        <span data-year="2025">2025</span>
+                        <span data-year="2026">2026</span>
+                    </div>
+                    <div id="timelineMarker" class="timeline-marker"></div>
+                </div>
+            </div>
+
+            <!-- 内容卡片 -->
+            <div class="content-card" id="chapterContent"></div>
+
+            <!-- 事件容器 -->
+            <div id="events-container" class="events-container"></div>
+        </div>
+    </main>
+</div>
+
+    <button id="danmakuToggleBtn" class="danmaku-btn">
+        <i class="fas fa-comment-slash"></i> 关闭弹幕
+    </button>
+
+    <footer class="footer">
+        <p>✨ 青春不散场，我们不说再见 ✨</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>

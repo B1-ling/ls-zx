@@ -1,0 +1,650 @@
+/* 全局重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "微软雅黑", sans-serif;
+}
+
+body {
+    background-color: #f0f8ff;
+    /* 改为垂直方向 flex，只包裹 flex-wrapper + footer */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding-top: 60px;
+    /* 保留顶部栏的 padding */
+}
+
+.flex-wrapper {
+    display: flex;
+    flex: 1;
+    /* 占满除了 header 和 footer 之外的空间 */
+}
+
+/* 顶部标题栏 */
+.page-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(to right, #a8d0ff, #4a90e2);
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    /* 优化：添加阴影，区分主内容区 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 40px;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: bold;
+    background-color: white;
+    color: #4a90e2;
+    padding: 5px 15px;
+    border-radius: 20px;
+    /* 优化：添加轻微阴影 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 侧边栏（按钮式） */
+.sidebar {
+    width: 180px;
+    /* 修复：删除多余的margin-top，body已加padding-top:60px */
+    padding: 20px 10px;
+    background-color: #f0f8ff;
+    /* 优化：固定侧边栏，滚动主内容 */
+    position: fixed;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.chapter-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chapter-btn {
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    /* 优化：添加轻微阴影 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 每个章节按钮的渐变颜色（补充浏览器前缀，提升兼容性） */
+.chapter-btn[data-chapter="第一"] {
+    background: -webkit-linear-gradient(left, #ffc0cb, #ff8fab);
+    background: linear-gradient(to right, #ffc0cb, #ff8fab);
+}
+
+.chapter-btn[data-chapter="第二"] {
+    background: -webkit-linear-gradient(left, #87ceeb, #4682b4);
+    background: linear-gradient(to right, #87ceeb, #4682b4);
+}
+
+.chapter-btn[data-chapter="第三"] {
+    background: -webkit-linear-gradient(left, #98fb98, #32cd32);
+    background: linear-gradient(to right, #98fb98, #32cd32);
+}
+
+.chapter-btn[data-chapter="第四"] {
+    background: -webkit-linear-gradient(left, #fffacd, #ffd700);
+    background: linear-gradient(to right, #fffacd, #ffd700);
+    color: #333;
+}
+
+.chapter-btn[data-chapter="第五"] {
+    background: -webkit-linear-gradient(left, #ffb6c1, #dc143c);
+    background: linear-gradient(to right, #ffb6c1, #dc143c);
+}
+
+.chapter-btn[data-chapter="第六"] {
+    background: -webkit-linear-gradient(left, #d8bfd8, #9370db);
+    background: linear-gradient(to right, #d8bfd8, #9370db);
+}
+
+.chapter-btn.active {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    /* 优化：增加选中态的边框，更醒目 */
+    border: 2px solid #fff;
+}
+
+/* 优化：鼠标悬浮效果 */
+.chapter-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* 主内容容器（弹幕定位参考） */
+.main-container {
+    /* 移除：width: calc(100% - 180px); */
+    margin-left: 180px;
+    flex: 1;
+    position: relative;
+    min-height: calc(100vh - 60px);
+    overflow: hidden;
+}
+
+/* 主内容区 */
+.main-content {
+    /* 修复：删除多余的margin-top，body已加padding-top:60px */
+    padding: 20px;
+    /* 优化：开启垂直滚动 */
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* 时间轴样式（目标UI的蓝色线条+节点） */
+.timeline {
+    margin-bottom: 20px;
+}
+
+.timeline-track {
+    position: relative;
+    height: 40px;
+    background-color: white;
+    border-radius: 20px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    /* 优化：添加阴影 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-years {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    /* 修复：提升层级，避免被线条遮挡 */
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-years span {
+    position: relative;
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+}
+
+/* 修复：SCSS嵌套语法&::after 改为普通CSS写法，否则样式失效 */
+.timeline-years span::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background-color: #4a90e2;
+    border-radius: 50%;
+    /* 优化：添加阴影 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 修复：active状态的节点也改为普通CSS写法 */
+.timeline-years span.active {
+    color: #4a90e2;
+}
+
+.timeline-years span.active::after {
+    width: 16px;
+    height: 16px;
+    background-color: #ff8fab;
+    border: 2px solid #4a90e2;
+}
+
+/* 时间轴蓝色线条 */
+.timeline-track::before {
+    content: "";
+    position: absolute;
+    top: 25px;
+    left: 20px;
+    right: 20px;
+    height: 4px;
+    background-color: #4a90e2;
+    /* 修复：层级低于年份节点 */
+    z-index: 1;
+}
+
+.timeline-marker {
+    display: none;
+    /* 目标UI不需要移动标记，用节点替代 */
+}
+
+/* 内容卡片样式 */
+.content-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* 优化：添加过渡效果 */
+    transition: all 0.3s;
+}
+
+.content-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.content-card h2 {
+    color: #4a90e2;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.content-card h2 span {
+    color: #ff8fab;
+}
+
+.content-card p {
+    line-height: 1.6;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* 图片布局（多图并排） */
+.event-img-wrapper {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    /* 优化：响应式换行 */
+    flex-wrap: wrap;
+}
+
+.event-img {
+    width: 100%;
+    max-width: 200px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* 优化：添加过渡效果 */
+    transition: all 0.3s;
+}
+
+.event-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 兼容低版本浏览器（object-fit降级） */
+@supports not (object-fit: cover) {
+    .event-img {
+        height: auto;
+        max-height: 120px;
+    }
+}
+
+/* 事件容器样式 */
+.events-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* 优化：添加过渡效果 */
+    transition: all 0.3s;
+}
+
+.events-container:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.event-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* 修复：最后一个事件项去掉边框 */
+.event-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    /* 优化：添加padding，增大点击区域 */
+    padding: 5px 0;
+}
+
+.event-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    color: #4a90e2;
+}
+
+.expand-btn {
+    color: #ff8fab;
+    font-size: 12px;
+    /* 优化：添加过渡 */
+    transition: all 0.3s;
+}
+
+.expand-btn:hover {
+    color: #ff6b9d;
+}
+
+/* 合并重复的.event-content定义，修复样式冲突 */
+.event-content {
+    margin-top: 10px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.event-content.show {
+    opacity: 1;
+    max-height: 2000px;
+}
+
+.event-desc {
+    line-height: 1.6;
+    color: #333;
+    /* 优化：添加padding，提升可读性 */
+    padding: 5px 0;
+}
+
+/* 弹幕容器：限定在主内容区，绝对定位 */
+.danmaku-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /* 不遮挡鼠标点击 */
+    z-index: 99;
+    /* 确保在内容上方 */
+}
+
+/* 单条弹幕样式 */
+.danmaku-item {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.05));
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    /* 核心修复：替换transform，用right:0让弹幕初始在容器最右端外 */
+    right: 0;
+    transform: translateX(100%);
+    /* 此时100%是弹幕自身宽度，刚好完全出现在容器右侧外 */
+    /* 补充：禁止继承其他transform，确保位置准确 */
+    transform-origin: right center;
+}
+
+/* 弹幕滚动动画（补充浏览器前缀，提升兼容性） */
+@-webkit-keyframes danmaku-scroll {
+    0% {
+        /* 初始：完全在容器右侧外 */
+        transform: translateX(100%);
+    }
+
+    100% {
+        /* 结束：完全在容器左侧外（-100%是弹幕自身宽度） */
+        transform: translateX(calc(-100% - 100vw));
+        /* 100vw是容器宽度，确保弹幕彻底滑出左侧 */
+    }
+}
+
+@keyframes danmaku-scroll {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(calc(-100% - 100vw));
+    }
+}
+
+/* 弹幕开关按钮（补充id选择器，匹配JS中的danmakuToggleBtn） */
+#danmakuToggleBtn,
+.danmaku-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #409eff;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+#danmakuToggleBtn.off,
+.danmaku-btn.off {
+    background: #909399;
+}
+
+#danmakuToggleBtn:hover,
+.danmaku-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 响应式适配：移动端（768px以下） */
+@media (max-width: 768px) {
+
+    /* 侧边栏改为全屏悬浮 */
+    .sidebar {
+        width: 250px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 90;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* 主内容区占满宽度 */
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* 顶部标题栏简化 */
+    .header-left {
+        font-size: 16px;
+        margin-right: 20px;
+    }
+
+    .header-title {
+        font-size: 20px;
+        padding: 4px 12px;
+    }
+
+    /* 图片自适应 */
+    .event-img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* 弹幕按钮调整位置 */
+    #danmakuToggleBtn,
+    .danmaku-btn {
+        bottom: 15px;
+        right: 15px;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* 时间轴高度适配 */
+    .timeline-track {
+        height: 35px;
+    }
+
+    .timeline-years span::after {
+        top: 18px;
+    }
+
+    .timeline-track::before {
+        top: 22px;
+    }
+}
+
+/* 遮罩层（移动端侧边栏） */
+.overlay {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 80;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 页脚最终样式（替换head中的临时样式） */
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    color: #666;
+    font-size: 14px;
+    background-color: #f0f8ff;
+    border-top: 1px solid #e8f4ff;
+    /* 关键：宽度100%，脱离flex布局影响 */
+    width: 100%;
+    /* 确保在主内容下方，不被遮挡 */
+    position: relative;
+    z-index: 10;
+    /* 移动端适配：避开侧边栏遮罩 */
+    margin-top: auto;
+}
+
+/* 侧边栏关闭按钮（移动端） */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a90e2;
+    font-size: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 91;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+/* PC端隐藏关闭按钮 */
+@media (min-width: 769px) {
+    .close-btn {
+        display: none;
+    }
+}
+
+/* 弹幕按钮图标间距 */
+.danmaku-btn i {
+    margin-right: 5px;
+}
+
+/* 移动端侧边栏切换按钮 */
+.sidebar-toggle {
+    position: fixed;
+    /* 原：top: 15px; left: 15px; */
+    top: 15px;
+    right: 15px;
+    /* 移到右上角 */
+    z-index: 101;
+    /* 保持在顶部栏之上 */
+    width: 35px;
+    /* 适当放大按钮，更易点击 */
+    height: 35px;
+    border: none;
+    background: #fff;
+    /* 纯色背景，避免透明融合 */
+    border-radius: 50%;
+    display: none;
+    /* 默认隐藏，移动端显示 */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    /* 增加阴影，突出按钮 */
+    color: #4a90e2;
+    /* 图标颜色和顶部栏主色一致 */
+    font-size: 18px;
+    /* 图标放大，更醒目 */
+}
+
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: flex;
+        /* 移动端显示按钮 */
+    }
+
+    /* 优化顶部标题栏的右边间距，避免按钮和标题挤在一起 */
+    .page-header {
+        padding-right: 50px;
+        /* 右边留出按钮的空间 */
+    }
+
+    .flex-wrapper {
+        flex-direction: column;
+    }
+
+    .main-container {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .footer {
+        padding: 15px 0;
+        font-size: 12px;
+    }
+}
