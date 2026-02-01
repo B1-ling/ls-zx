@@ -5,17 +5,38 @@
   box-sizing: border-box;
   -webkit-user-select: none;
   user-select: none;
-} 
+}
 
 body {
-  font-family: sans-serif;
-  background: #000;
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   overflow: hidden;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
+  background-attachment: fixed;
+}
+
+/* 背景装饰 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center;
+  background-size: cover;
+  opacity: 0.05;
+  z-index: -1;
+  animation: backgroundFloat 20s ease-in-out infinite;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.05) rotate(1deg); }
 }
 
 /* 核心透视容器（居中） */
@@ -75,6 +96,15 @@ body {
   user-select: none;
   -webkit-touch-callout: none;
   cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.cylinder-img:hover {
+  transform: translateY(-50%) scale(1.05);
+  border: 2px solid rgba(102, 126, 234, 0.5);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  z-index: 10;
 } 
 
 /* 大图弹窗（修复移动端点击/关闭按钮） */
@@ -108,27 +138,28 @@ body {
   position: fixed; /* 改为fixed，避免滚动遮挡 */
   top: 20px;       /* 调整位置，确保可见 */
   right: 20px;
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  color: #000;
-  font-size: 24px;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 28px;
   font-weight: bold;
   text-align: center;
-  line-height: 40px;
+  line-height: 45px;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.4s ease;
   z-index: 10005; /* 层级高于弹窗 */
   margin-bottom: 10px;
   /* 确保移动端也能点击 */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
 }
 
 .close-btn:hover {
-  background: #ff4444;
-  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
 }
 
 .big-img {
@@ -164,39 +195,63 @@ body {
   top: 20px;
   left: 20px;
   z-index: 10000;
-  background: #0b84ff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
   text-decoration: none; /* 去除a标签下划线 */
-  transition: background 0.2s, transform 0.1s;
+  transition: all 0.4s ease;
   /* 移动端适配 */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 8px rgba(11, 132, 255, 0.4);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  overflow: hidden;
+}
+
+.back-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.back-btn:hover::before {
+  left: 100%;
 }
 
 .back-btn:hover {
-  background: #0066cc;
-  transform: translateY(-1px);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
 }
 
 .back-btn:active {
-  transform: translateY(0);
+  transform: translateY(-1px);
 }
 
 /* 图片数量统计 */
 .count {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
   color: #fff;
-  font-size: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
   z-index: 10000;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 30px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .loading {
@@ -205,8 +260,22 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 18px;
+  font-size: 1.5rem;
+  font-weight: bold;
   z-index: 999;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 20px 40px;
+  border-radius: 50px;
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3); }
+  50% { box-shadow: 0 15px 60px rgba(102, 126, 234, 0.5); }
+  100% { box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3); }
 }
 
 /* 缩放控件（桌面端） */
@@ -215,21 +284,23 @@ body {
   right: 20px;
   top: 50%;
   transform: translateY(-50%);
-  width: 130px;
-  background: rgba(0,0,0,0.45);
-  padding: 8px;
-  border-radius: 8px;
+  width: 150px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 15px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   z-index: 10002;
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  color: #333;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.15);
 } 
-.scale-control label { font-size: 12px; color: #cfcfcf; }
+.scale-control label { font-size: 1.1rem; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .scale-control input[type=range] { width: 100%; }
-.scale-control .scale-value { font-size: 12px; color: #fff; }
+.scale-control .scale-value { font-size: 1.1rem; font-weight: bold; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
 /* 移动端适配（取消缩放按钮+默认显示滑动条） */
 @media (max-width: 800px) {
@@ -248,31 +319,36 @@ body {
     width: 80%; /* 加宽滑动条，更易操作 */
     display: flex !important; /* 默认显示 */
     z-index: 10003; 
-    background: rgba(0,0,0,0.7); 
-    color: #fff; 
-    border: 1px solid #444; 
-    padding: 10px 15px; 
-    border-radius: 30px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5); 
+    background: rgba(255, 255, 255, 0.9); 
+    color: #333;
+    border: 1px solid rgba(102, 126, 234, 0.15); 
+    padding: 15px 20px; 
+    border-radius: 50px; 
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2); 
     flex-direction: row; /* 横向排列，更适配手机 */
-    gap: 10px;
+    gap: 15px;
+    backdrop-filter: blur(10px);
   }
   .scale-control label { 
-    color: #fff; 
-    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: bold;
     white-space: nowrap;
+    font-size: 1rem;
   }
   .scale-control input[type=range] { 
     flex: 1; /* 滑动条占满剩余宽度 */
     height: 36px; 
     -webkit-appearance: none; 
     appearance: none; 
-    background: rgba(255,255,255,0.2); 
+    background: rgba(255, 215, 0, 0.1); 
     border-radius: 18px; 
   }
   .scale-control input[type=range]::-webkit-slider-runnable-track { 
     height: 8px; 
-    background: rgba(255,255,255,0.3); 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
     border-radius: 4px; 
   }
   .scale-control input[type=range]::-webkit-slider-thumb { 
@@ -281,12 +357,17 @@ body {
     width: 28px; 
     height: 28px; 
     border-radius: 50%; 
-    background: #0b84ff; 
-    box-shadow: 0 0 8px rgba(11,132,255,0.8); 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.6); 
   }
   .scale-control .scale-value {
     min-width: 60px;
     text-align: center;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   /* 3. 移动端大图弹窗适配 */
   .big-img {
@@ -295,17 +376,17 @@ body {
   .close-btn {
     top: 15px;
     right: 15px;
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
-    line-height: 36px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    line-height: 40px;
   }
   /* 移动端返回按钮适配 */
   .back-btn {
     top: 15px;
     left: 15px;
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 10px 20px;
+    font-size: 1rem;
   }
 }
 
