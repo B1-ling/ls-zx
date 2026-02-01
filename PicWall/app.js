@@ -591,7 +591,8 @@ function loadVisibleImages() {
           // 本地图片不需要crossOrigin和随机参数
           img.src = imgUrl;
           img.dataset.bigSrc = imgUrl;
-          img.dataset.loaded = 'true';
+          // 不要在这里标记为已加载，等onload事件触发后再标记
+          // img.dataset.loaded = 'true';
         };
         
         // 添加图片加载失败处理
