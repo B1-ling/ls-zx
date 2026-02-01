@@ -349,6 +349,8 @@ function initImages() {
           }
         }, 10000); // 10秒超时
         
+        // 添加crossOrigin设置，解决可能的CORS问题
+        img.crossOrigin = 'anonymous';
         img.src = imgUrl;
         img.dataset.bigSrc = imgUrl;
       };
