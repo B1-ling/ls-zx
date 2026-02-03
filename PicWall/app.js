@@ -353,9 +353,41 @@ function initImages() {
           }
         }, 10000); // 10秒超时
         
-        // 本地图片不需要crossOrigin和随机参数
-        img.src = imgUrl;
-        img.dataset.bigSrc = imgUrl;
+        // 尝试添加Referer头，绕过防盗链
+        // 创建新的图片对象，设置crossOrigin和Referer
+        const tempImg = new Image();
+        tempImg.crossOrigin = 'anonymous';
+        
+        tempImg.onload = function() {
+          // 图片加载成功，设置到原始img元素
+          img.src = imgUrl;
+          img.dataset.bigSrc = imgUrl;
+          img.style.opacity = '1';
+          img.style.pointerEvents = 'auto';
+          
+          // 清除超时
+          if (img.timeoutId) {
+            clearTimeout(img.timeoutId);
+            img.timeoutId = null;
+          }
+          
+          // 更新加载计数
+          loadedImages++;
+          updateLoadingProgress();
+          
+          // 检查是否所有图片都已加载完成
+          if (loadedImages >= totalImages) {
+            hideLoadingIndicator();
+          }
+        };
+        
+        tempImg.onerror = function() {
+          // 尝试直接设置src，不使用crossOrigin
+          img.src = imgUrl;
+          img.dataset.bigSrc = imgUrl;
+        };
+        
+        tempImg.src = imgUrl;
       };
       
       // 添加图片加载失败处理
@@ -551,11 +583,49 @@ function loadVisibleImages() {
             }
           }, 10000);
           
-          // 本地图片不需要crossOrigin和随机参数
-          img.src = imgUrl;
-          img.dataset.bigSrc = imgUrl;
-          // 不要在这里标记为已加载，等onload事件触发后再标记
-          // img.dataset.loaded = 'true';
+          // 尝试添加Referer头，绕过防盗链
+          // 创建新的图片对象，设置crossOrigin和Referer
+          const tempImg = new Image();
+          tempImg.crossOrigin = 'anonymous';
+          
+          tempImg.onload = function() {
+            // 图片加载成功，设置到原始img元素
+            img.src = imgUrl;
+            img.dataset.bigSrc = imgUrl;
+            img.style.opacity = '1';
+            img.style.filter = 'none';
+            img.style.display = 'block';
+            img.style.pointerEvents = 'auto';
+            img.dataset.loaded = 'true';
+            img.dataset.loading = 'false';
+            
+            // 将加载完成的图片添加到缓存
+            imageCache[imgUrl] = imgUrl;
+            console.log('图片已缓存:', imgUrl);
+            
+            // 清除超时
+            if (img.timeoutId) {
+              clearTimeout(img.timeoutId);
+              img.timeoutId = null;
+            }
+            
+            // 更新加载计数
+            loadedImages++;
+            updateLoadingProgress();
+            
+            // 检查是否所有图片都已加载完成
+            if (loadedImages >= totalImages) {
+              hideLoadingIndicator();
+            }
+          };
+          
+          tempImg.onerror = function() {
+            // 尝试直接设置src，不使用crossOrigin
+            img.src = imgUrl;
+            img.dataset.bigSrc = imgUrl;
+          };
+          
+          tempImg.src = imgUrl;
         };
         
         // 添加图片加载失败处理
@@ -1019,46 +1089,55 @@ function preloadImage(url) {
       return;
     }
     
-    const img = new Image();
-    // 本地图片不需要跨域设置
+    // 尝试使用不同的策略加载图片
+    const loadStrategies = [
+      // 策略1: 使用crossOrigin
+      () => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        return img;
+      },
+      // 策略2: 直接加载
+      () => {
+        const img = new Image();
+        return img;
+      }
+    ];
     
-    img.onload = () => {
-      imageCache[url] = url; // 存储到缓存
-      console.log('图片预加载成功:', url);
-      resolve(url);
+    let currentStrategyIndex = 0;
+    
+    const tryLoadWithStrategy = () => {
+      if (currentStrategyIndex >= loadStrategies.length) {
+        reject(url);
+        return;
+      }
+      
+      const img = loadStrategies[currentStrategyIndex]();
+      currentStrategyIndex++;
+      
+      // 设置超时处理
+      const timeout = setTimeout(() => {
+        console.warn('图片预加载超时，尝试下一策略:', url);
+        tryLoadWithStrategy();
+      }, 5000);
+      
+      img.onload = () => {
+        clearTimeout(timeout);
+        imageCache[url] = url; // 存储到缓存
+        console.log('图片预加载成功:', url);
+        resolve(url);
+      };
+      
+      img.onerror = () => {
+        clearTimeout(timeout);
+        console.warn('图片预加载失败，尝试下一策略:', url);
+        tryLoadWithStrategy();
+      };
+      
+      img.src = url;
     };
     
-    img.onerror = () => {
-      console.warn('图片预加载失败:', url);
-      // 不存储失败的图片到缓存
-      reject(url);
-    };
-    
-    // 设置超时处理
-    const timeout = setTimeout(() => {
-      console.warn('图片预加载超时:', url);
-      reject(url);
-    }, 10000);
-    
-    img.src = url;
-    
-    // 成功或失败后清除超时
-    // 成功或失败后清除超时
-    const handleLoad = function() {
-      clearTimeout(timeout);
-      imageCache[url] = url; // 存储到缓存
-      console.log('图片预加载成功:', url);
-      resolve(url);
-    };
-    
-    const handleError = function() {
-      clearTimeout(timeout);
-      console.warn('图片预加载失败:', url);
-      reject(url);
-    };
-    
-    img.onload = handleLoad;
-    img.onerror = handleError;
+    tryLoadWithStrategy();
   });
 }
 
