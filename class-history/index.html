@@ -440,6 +440,104 @@
             }
         }
 
+        /* PDF加载动画 */
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes colorShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* 加载动画容器 */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px;
+        }
+
+        /* 加载动画圆圈 */
+        .loading-circle {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(20, 184, 166, 0.2);
+            border-top: 4px solid var(--primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: relative;
+        }
+
+        /* 加载动画中的PDF图标 */
+        .loading-circle i {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: var(--primary-500);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* 加载文本容器 */
+        .loading-text-container {
+            text-align: center;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        /* 加载标题 */
+        .loading-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: colorShift 3s ease-in-out infinite;
+        }
+
+        /* 加载进度文本 */
+        .loading-progress {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        /* 加载状态文本 */
+        .loading-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
         /* 响应式适配 */
         @media (max-width: 768px) {
             body {
@@ -586,9 +684,16 @@
             </div>
             <div class="pdf-reader" id="pdfReader">
                 <div class="pdf-placeholder" id="pdfPlaceholder">
-                    <i class="fas fa-file-pdf"></i>
-                    <h3>欢迎使用班级历史书阅读器</h3>
-                    <p>正在加载班级历史书...</p>
+                    <div class="loading-container">
+                        <div class="loading-circle">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="loading-text-container">
+                            <div class="loading-title">欢迎使用班级历史书阅读器</div>
+                            <div class="loading-progress" id="loadingProgress">正在加载班级历史书...</div>
+                            <div class="loading-status" id="loadingStatus">准备中...</div>
+                        </div>
+                    </div>
                 </div>
                 <!-- PDF.js渲染区域 -->
                 <div id="pdfContainer" style="display: none;">
@@ -650,19 +755,27 @@
             const nextPageBtn = document.getElementById('nextPage');
             const zoomInBtn = document.getElementById('zoomIn');
             const zoomOutBtn = document.getElementById('zoomOut');
+            const loadingProgress = document.getElementById('loadingProgress');
+            const loadingStatus = document.getElementById('loadingStatus');
             
             // PDF.js相关变量
             let pdfDoc = null;
             let currentPage = 1;
             let zoom = 1.0;
             
+            // 更新加载状态
+            function updateLoadingStatus(progress, status) {
+                if (loadingProgress) {
+                    loadingProgress.textContent = progress;
+                }
+                if (loadingStatus) {
+                    loadingStatus.textContent = status;
+                }
+            }
+
             // 直接加载一班历史Demo0.1.1.pdf文件
             function loadPDF() {
                 try {
-                    // 隐藏占位符，显示PDF容器
-                    pdfPlaceholder.style.display = 'none';
-                    pdfContainer.style.display = 'block';
-                    
                     // 尝试不同的路径格式
                     const pdfPaths = [
                         '一班历史Demo0.1.1.pdf',
@@ -676,45 +789,109 @@
                     function tryLoadPath() {
                         if (currentPathIndex >= pdfPaths.length) {
                             console.error('所有路径都尝试失败');
-                            alert('无法找到PDF文件，请检查文件是否存在');
-                            pdfPlaceholder.style.display = 'flex';
-                            pdfContainer.style.display = 'none';
+                            updateLoadingStatus('加载失败', '无法找到PDF文件');
+                            setTimeout(() => {
+                                alert('无法找到PDF文件，请检查文件是否存在');
+                            }, 1000);
                             return;
                         }
                         
                         const pdfPath = pdfPaths[currentPathIndex];
                         console.log(`尝试加载PDF文件 (${currentPathIndex + 1}/${pdfPaths.length}):`, pdfPath);
                         
-                        // 使用PDF.js直接加载
-                        pdfjsLib.getDocument(pdfPath).promise
-                            .then(function(pdf) {
-                                console.log('PDF文件加载成功，页数:', pdf.numPages);
-                                pdfDoc = pdf;
-                                pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
-                                renderPage(1);
-                                
-                                // 显示PDF.js专用的控制按钮
-                                prevPageBtn.style.display = 'inline-block';
-                                nextPageBtn.style.display = 'inline-block';
-                                zoomInBtn.style.display = 'inline-block';
-                                zoomOutBtn.style.display = 'inline-block';
-                                pageInfo.style.display = 'inline-block';
-                            })
-                            .catch(function(error) {
-                                console.error(`Error loading PDF from ${pdfPath}:`, error);
-                                currentPathIndex++;
-                                tryLoadPath();
+                        // 更新加载状态
+                        updateLoadingStatus(`正在加载PDF文件 (${currentPathIndex + 1}/${pdfPaths.length})...`, `尝试路径: ${pdfPath}`);
+                        
+                        // 代理服务器列表
+                        const proxyServers = [
+                            // 国内可用的免费代理
+                            'https://api.allorigins.win/raw?url=',
+                            'https://cors-anywhere.herokuapp.com/',
+                            'https://proxy.cors.sh/'
+                        ];
+                        
+                        let currentProxyIndex = -1; // -1 表示直接加载
+                        
+                        function tryLoadWithProxy() {
+                            let loadUrl = pdfPath;
+                            let loadMethod = '直接加载';
+                            
+                            // 如果不是第一次尝试，使用代理服务器
+                            if (currentProxyIndex >= 0) {
+                                const proxyUrl = proxyServers[currentProxyIndex];
+                                loadUrl = proxyUrl + encodeURIComponent(window.location.origin + '/' + pdfPath);
+                                loadMethod = `代理加载 (${currentProxyIndex + 1}/${proxyServers.length})`;
+                            }
+                            
+                            console.log(`${loadMethod} PDF文件:`, loadUrl);
+                            updateLoadingStatus(`正在${loadMethod === '直接加载' ? '直接' : '通过代理'}加载PDF文件...`, loadMethod);
+                            
+                            // 使用PDF.js加载
+                            const loadingTask = pdfjsLib.getDocument({
+                                url: loadUrl,
+                                // 添加进度回调
+                                onProgress: function({ loaded, total }) {
+                                    if (total > 0) {
+                                        const progressPercent = Math.round((loaded / total) * 100);
+                                        updateLoadingStatus(`正在${loadMethod === '直接加载' ? '直接' : '通过代理'}加载PDF文件... ${progressPercent}%`, loadMethod);
+                                    }
+                                }
                             });
+                            
+                            loadingTask.promise
+                                .then(function(pdf) {
+                                    console.log('PDF文件加载成功，页数:', pdf.numPages);
+                                    updateLoadingStatus('加载完成', `共 ${pdf.numPages} 页`);
+                                    
+                                    // 短暂延迟，让用户看到加载完成状态
+                                    setTimeout(() => {
+                                        // 隐藏占位符，显示PDF容器
+                                        pdfPlaceholder.style.display = 'none';
+                                        pdfContainer.style.display = 'block';
+                                        
+                                        pdfDoc = pdf;
+                                        pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
+                                        renderPage(1);
+                                        
+                                        // 显示PDF.js专用的控制按钮
+                                        prevPageBtn.style.display = 'inline-block';
+                                        nextPageBtn.style.display = 'inline-block';
+                                        zoomInBtn.style.display = 'inline-block';
+                                        zoomOutBtn.style.display = 'inline-block';
+                                        pageInfo.style.display = 'inline-block';
+                                    }, 800);
+                                })
+                                .catch(function(error) {
+                                    console.error(`${loadMethod} PDF失败:`, error);
+                                    
+                                    // 如果直接加载失败，尝试使用代理
+                                    if (currentProxyIndex < proxyServers.length - 1) {
+                                        currentProxyIndex++;
+                                        updateLoadingStatus('加载失败，尝试使用代理...', `切换到 ${currentProxyIndex + 1} 号代理`);
+                                        setTimeout(tryLoadWithProxy, 1000);
+                                    } else {
+                                        // 所有代理都尝试失败，尝试下一个本地路径
+                                        console.error('所有代理都尝试失败');
+                                        currentPathIndex++;
+                                        tryLoadPath();
+                                    }
+                                });
+                        }
+                        
+                        // 开始尝试加载
+                        tryLoadWithProxy();
                     }
                     
                     // 开始尝试加载
-                    tryLoadPath();
+                    updateLoadingStatus('正在准备加载...', '初始化PDF阅读器');
+                    setTimeout(tryLoadPath, 300);
                     
                 } catch (error) {
                     console.error('Error loading PDF:', error);
-                    alert('处理文件时出错，请刷新页面重试');
-                    pdfPlaceholder.style.display = 'flex';
-                    pdfContainer.style.display = 'none';
+                    updateLoadingStatus('加载失败', '处理文件时出错');
+                    setTimeout(() => {
+                        alert('处理文件时出错，请刷新页面重试');
+                    }, 1000);
                 }
             }
             
