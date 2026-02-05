@@ -774,15 +774,37 @@
             }
 
             // 直接加载一班历史Demo0.1.1.pdf文件
-            function loadPDF() {
-                try {
-                    // 尝试不同的路径格式
-                    const pdfPaths = [
-                        '一班历史Demo0.1.1.pdf',
-                        './一班历史Demo0.1.1.pdf',
-                        'class-history/一班历史Demo0.1.1.pdf',
-                        './class-history/一班历史Demo0.1.1.pdf'
-                    ];
+                        function loadPDF() {
+                            try {
+                                // 尝试不同的路径格式
+                                const pdfPaths = [
+                                    // 本地路径
+                                    '一班历史Demo0.1.1.pdf',
+                                    './一班历史Demo0.1.1.pdf',
+                                    'class-history/一班历史Demo0.1.1.pdf',
+                                    './class-history/一班历史Demo0.1.1.pdf'
+                                ];
+                                
+                                /*
+                                将PDF上传到Gitee并使用Gitee服务的步骤：
+                                
+                                1. 登录Gitee账号：https://gitee.com/
+                                2. 创建一个新的仓库，例如命名为 "class-history-book"
+                                3. 在仓库中创建一个文件，将 "一班历史Demo0.1.1.pdf" 上传到仓库的根目录
+                                4. 上传完成后，获取PDF文件的原始链接：
+                                   - 进入仓库，找到刚上传的PDF文件
+                                   - 点击文件名称进入文件详情页
+                                   - 点击右上角的 "原始数据" 按钮
+                                   - 复制浏览器地址栏中的URL
+                                5. 将复制的URL替换到上面的Gitee路径中
+                                6. 保存文件并刷新页面
+                                
+                                优点：
+                                - Gitee在国内访问速度快
+                                - 稳定可靠，不受本地服务器限制
+                                - 支持HTTPS，安全可靠
+                                - 无需配置代理服务器
+                                */
                     
                     let currentPathIndex = 0;
                     
@@ -802,84 +824,60 @@
                         // 更新加载状态
                         updateLoadingStatus(`正在加载PDF文件 (${currentPathIndex + 1}/${pdfPaths.length})...`, `尝试路径: ${pdfPath}`);
                         
-                        // 代理服务器列表
-                        const proxyServers = [
-                            // 国内可用的免费代理
-                            'https://api.allorigins.win/raw?url=',
-                            'https://cors-anywhere.herokuapp.com/',
-                            'https://proxy.cors.sh/'
-                        ];
+                        // 直接加载PDF文件，不使用代理服务器
+                        console.log('直接加载PDF文件...');
                         
-                        let currentProxyIndex = -1; // -1 表示直接加载
+                        // 设置加载超时
+                        const loadTimeout = setTimeout(() => {
+                            console.error('加载超时');
+                            updateLoadingStatus('加载超时，尝试下一个路径...', '切换路径');
+                            currentPathIndex++;
+                            tryLoadPath();
+                        }, 10000); // 加载超时时间设为10秒
                         
-                        function tryLoadWithProxy() {
-                            let loadUrl = pdfPath;
-                            let loadMethod = '直接加载';
-                            
-                            // 如果不是第一次尝试，使用代理服务器
-                            if (currentProxyIndex >= 0) {
-                                const proxyUrl = proxyServers[currentProxyIndex];
-                                loadUrl = proxyUrl + encodeURIComponent(window.location.origin + '/' + pdfPath);
-                                loadMethod = `代理加载 (${currentProxyIndex + 1}/${proxyServers.length})`;
-                            }
-                            
-                            console.log(`${loadMethod} PDF文件:`, loadUrl);
-                            updateLoadingStatus(`正在${loadMethod === '直接加载' ? '直接' : '通过代理'}加载PDF文件...`, loadMethod);
-                            
-                            // 使用PDF.js加载
-                            const loadingTask = pdfjsLib.getDocument({
-                                url: loadUrl,
-                                // 添加进度回调
-                                onProgress: function({ loaded, total }) {
-                                    if (total > 0) {
-                                        const progressPercent = Math.round((loaded / total) * 100);
-                                        updateLoadingStatus(`正在${loadMethod === '直接加载' ? '直接' : '通过代理'}加载PDF文件... ${progressPercent}%`, loadMethod);
-                                    }
+                        // 使用PDF.js加载
+                        const loadingTask = pdfjsLib.getDocument({
+                            url: pdfPath,
+                            // 添加进度回调
+                            onProgress: function({ loaded, total }) {
+                                if (total > 0) {
+                                    const progressPercent = Math.round((loaded / total) * 100);
+                                    updateLoadingStatus(`正在加载PDF文件... ${progressPercent}%`, '直接加载');
                                 }
-                            });
-                            
-                            loadingTask.promise
-                                .then(function(pdf) {
-                                    console.log('PDF文件加载成功，页数:', pdf.numPages);
-                                    updateLoadingStatus('加载完成', `共 ${pdf.numPages} 页`);
-                                    
-                                    // 短暂延迟，让用户看到加载完成状态
-                                    setTimeout(() => {
-                                        // 隐藏占位符，显示PDF容器
-                                        pdfPlaceholder.style.display = 'none';
-                                        pdfContainer.style.display = 'block';
-                                        
-                                        pdfDoc = pdf;
-                                        pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
-                                        renderPage(1);
-                                        
-                                        // 显示PDF.js专用的控制按钮
-                                        prevPageBtn.style.display = 'inline-block';
-                                        nextPageBtn.style.display = 'inline-block';
-                                        zoomInBtn.style.display = 'inline-block';
-                                        zoomOutBtn.style.display = 'inline-block';
-                                        pageInfo.style.display = 'inline-block';
-                                    }, 800);
-                                })
-                                .catch(function(error) {
-                                    console.error(`${loadMethod} PDF失败:`, error);
-                                    
-                                    // 如果直接加载失败，尝试使用代理
-                                    if (currentProxyIndex < proxyServers.length - 1) {
-                                        currentProxyIndex++;
-                                        updateLoadingStatus('加载失败，尝试使用代理...', `切换到 ${currentProxyIndex + 1} 号代理`);
-                                        setTimeout(tryLoadWithProxy, 1000);
-                                    } else {
-                                        // 所有代理都尝试失败，尝试下一个本地路径
-                                        console.error('所有代理都尝试失败');
-                                        currentPathIndex++;
-                                        tryLoadPath();
-                                    }
-                                });
-                        }
+                            }
+                        });
                         
-                        // 开始尝试加载
-                        tryLoadWithProxy();
+                        loadingTask.promise
+                            .then(function(pdf) {
+                                clearTimeout(loadTimeout);
+                                console.log('PDF文件加载成功，页数:', pdf.numPages);
+                                updateLoadingStatus('加载完成', `共 ${pdf.numPages} 页`);
+                                
+                                // 短暂延迟，让用户看到加载完成状态
+                                setTimeout(() => {
+                                    // 隐藏占位符，显示PDF容器
+                                    pdfPlaceholder.style.display = 'none';
+                                    pdfContainer.style.display = 'block';
+                                    
+                                    pdfDoc = pdf;
+                                    pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
+                                    renderPage(1);
+                                    
+                                    // 显示PDF.js专用的控制按钮
+                                    prevPageBtn.style.display = 'inline-block';
+                                    nextPageBtn.style.display = 'inline-block';
+                                    zoomInBtn.style.display = 'inline-block';
+                                    zoomOutBtn.style.display = 'inline-block';
+                                    pageInfo.style.display = 'inline-block';
+                                }, 800);
+                            })
+                            .catch(function(error) {
+                                clearTimeout(loadTimeout);
+                                console.error('加载失败:', error);
+                                updateLoadingStatus('加载失败，尝试下一个路径...', '切换路径');
+                                currentPathIndex++;
+                                tryLoadPath();
+                            });
                     }
                     
                     // 开始尝试加载
