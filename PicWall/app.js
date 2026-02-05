@@ -5,7 +5,7 @@ const config = {
   minScale: 0.6,
   maxScale: 2.0,
   baseRingRadius: 210,
-  dragSensitivity: 0.3,
+  dragSensitivity: 0.25,
   fixedImgGap: 2,
   baseImgHeight: 78,
   baseLayerOffsets: {
@@ -177,8 +177,8 @@ const imgCount = document.getElementById('imgCount');
 const scaleRange = document.getElementById('scaleRange');
 const scaleValue = document.getElementById('scaleValue');
 const scaleControl = document.getElementById('scaleControl');
-// 取消移动端缩放按钮，直接注释创建逻辑
-// const scaleToggleBtn = document.createElement('button');
+// 移动端缩放按钮
+let scaleToggleBtn;
 
 // 设备检测
 function detectMobileDevice() {
@@ -211,27 +211,13 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 /**
- * 移除移动端缩放按钮初始化（取消创建）
+ * 移动端缩放按钮初始化（已移除，直接显示缩放滑杆）
  */
-// function initScaleToggleBtn() { 注释掉该函数
-//   if (!isMobileDevice || !scaleControl) return;
-//   scaleToggleBtn.id = 'scaleToggleBtn';
-//   scaleToggleBtn.className = 'scale-toggle-btn';
-//   scaleToggleBtn.textContent = '缩放';
-//   scaleToggleBtn.setAttribute('aria-label', '显示/隐藏缩放控件');
-//   document.body.appendChild(scaleToggleBtn);
-//   scaleToggleBtn.addEventListener('click', () => {
-//     scaleControl.classList.toggle('mobile-open');
-//     scaleToggleBtn.textContent = scaleControl.classList.contains('mobile-open') ? '收起' : '缩放';
-//   });
-//   document.addEventListener('click', (e) => {
-//     if (isMobileDevice && scaleControl.classList.contains('mobile-open') &&
-//         !scaleControl.contains(e.target) && e.target !== scaleToggleBtn) {
-//       scaleControl.classList.remove('mobile-open');
-//       scaleToggleBtn.textContent = '缩放';
-//     }
-//   });
-// }
+function initScaleToggleBtn() {
+  // 移动端现在直接显示缩放滑杆，不需要初始化按钮
+  console.log('移动端已直接显示缩放滑杆，跳过按钮初始化');
+  return;
+}
 
 /**
  * 初始化图片（修复移动端点击）
@@ -272,19 +258,367 @@ function initImages() {
 
   updateLayerOffsets();
 
+  // 图片加载缓存
+  const imageCache = new Map();
+  
+  // 图片预加载队列
+  const preloadQueue = [];
+  
+  // 代理服务器配置
+  const proxyServers = {
+    // 优先代理服务器
+    priority: [
+      {
+        name: 'images.weserv.nl代理',
+        getUrl: (imgUrl) => 'https://images.weserv.nl/?url=' + encodeURIComponent(imgUrl.replace('https://', ''))
+      }
+    ],
+    // 国内代理服务器
+    domestic: [
+      {
+        name: '百度云加速',
+        getUrl: (imgUrl) => 'https://cors-anywhere.azm.workers.dev/' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: '阿里云图片服务',
+        getUrl: (imgUrl) => 'https://img.alicdn.com/tfs/TB1_.OEp8r0gK0jSZFnXXbRRXXa-100-100.png' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: '七牛云存储',
+        getUrl: (imgUrl) => 'https://dn-qiniu-avatar.qbox.me/avatar/' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: '又拍云存储',
+        getUrl: (imgUrl) => 'https://upaiyun.com/demo/' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: '360图片代理',
+        getUrl: (imgUrl) => 'https://image.so.com/i?src=image_onebox&q=' + encodeURIComponent(imgUrl)
+      }
+    ],
+    // 国外代理服务器
+    foreign: [
+      {
+        name: 'duckduckgo代理',
+        getUrl: (imgUrl) => 'https://proxy.duckduckgo.com/iu/?u=' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: 'cloudinary代理',
+        getUrl: (imgUrl) => 'https://res.cloudinary.com/demo/image/fetch/' + encodeURIComponent(imgUrl)
+      },
+      {
+        name: 'imgproxy代理',
+        getUrl: (imgUrl) => 'https://imgproxy.net/' + base64Encode(imgUrl)
+      }
+    ]
+  };
+  
+  // 代理服务器速度测试结果
+  let proxySpeedResults = {};
+  
+  /**
+   * Base64编码函数（兼容所有环境）
+   * @param {string} str - 要编码的字符串
+   * @returns {string} - Base64编码后的字符串
+   */
+  function base64Encode(str) {
+    if (typeof btoa === 'function') {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    // 简单的base64编码实现（作为fallback）
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    let encoded = '';
+    for (let i = 0; i < str.length; i += 3) {
+      const b1 = str.charCodeAt(i);
+      const b2 = str.charCodeAt(i + 1) || 0;
+      const b3 = str.charCodeAt(i + 2) || 0;
+      const b4 = (b1 >> 2) & 63;
+      const b5 = ((b1 & 3) << 4) | (b2 >> 4);
+      const b6 = ((b2 & 15) << 2) | (b3 >> 6);
+      const b7 = b3 & 63;
+      encoded += chars[b4] + chars[b5] + chars[b6] + chars[b7];
+    }
+    return encoded;
+  }
+  
+  /**
+   * 测试代理服务器速度
+   * @param {Object} proxy - 代理服务器配置
+   * @returns {Promise<number>} - 响应时间（毫秒）
+   */
+  function testProxySpeed(proxy) {
+    return new Promise((resolve) => {
+      const testUrl = 'https://i0.hdslb.com/bfs/openplatform/034845a597ed4c48f981a875f3563f07437be801.jpg';
+      const startTime = performance.now();
+      
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = function() {
+        const endTime = performance.now();
+        const responseTime = endTime - startTime;
+        proxySpeedResults[proxy.name] = responseTime;
+        resolve(responseTime);
+      };
+      
+      img.onerror = function() {
+        // 加载失败，设置一个较大的响应时间
+        proxySpeedResults[proxy.name] = 9999;
+        resolve(9999);
+      };
+      
+      // 设置超时
+      setTimeout(() => {
+        proxySpeedResults[proxy.name] = 9999;
+        resolve(9999);
+      }, 5000);
+      
+      try {
+        const proxyUrl = proxy.getUrl(testUrl);
+        img.src = proxyUrl;
+      } catch (error) {
+        console.error(`代理服务器测试失败: ${proxy.name}`, error);
+        proxySpeedResults[proxy.name] = 9999;
+        resolve(9999);
+      }
+    });
+  }
+  
+  /**
+   * 获取最优代理服务器
+   * @returns {Array} - 排序后的代理服务器列表
+   */
+  function getOptimalProxies() {
+    // 合并所有代理服务器，优先代理服务器排在最前面
+    const allProxies = [...proxyServers.priority, ...proxyServers.domestic, ...proxyServers.foreign];
+    
+    // 根据速度测试结果排序
+    return allProxies.sort((a, b) => {
+      const speedA = proxySpeedResults[a.name] || 9999;
+      const speedB = proxySpeedResults[b.name] || 9999;
+      
+      // 优先代理服务器最优先
+      if (proxyServers.priority.includes(a) && !proxyServers.priority.includes(b)) {
+        return -1;
+      }
+      if (!proxyServers.priority.includes(a) && proxyServers.priority.includes(b)) {
+        return 1;
+      }
+      
+      // 国内代理服务器次之
+      if (proxyServers.domestic.includes(a) && !proxyServers.domestic.includes(b)) {
+        return -1;
+      }
+      if (!proxyServers.domestic.includes(a) && proxyServers.domestic.includes(b)) {
+        return 1;
+      }
+      
+      // 相同优先级的按速度排序
+      return speedA - speedB;
+    });
+  }
+  
+  // 初始化时测试代理服务器速度
+  async function initProxySpeedTest() {
+    console.log('=== 开始测试代理服务器速度 ===');
+    
+    // 合并所有代理服务器
+    const allProxies = [...proxyServers.priority, ...proxyServers.domestic, ...proxyServers.foreign];
+    
+    console.log('测试的代理服务器列表:', allProxies.map(p => p.name));
+    
+    // 并行测试所有代理服务器
+    const speedTests = allProxies.map(proxy => testProxySpeed(proxy));
+    await Promise.all(speedTests);
+    
+    console.log('=== 代理服务器速度测试结果 ===');
+    console.log(proxySpeedResults);
+    
+    const optimalProxies = getOptimalProxies();
+    console.log('=== 最优代理服务器排序 ===');
+    optimalProxies.forEach((proxy, index) => {
+      const speed = proxySpeedResults[proxy.name] || 9999;
+      console.log(`${index + 1}. ${proxy.name}: ${speed.toFixed(2)}ms`);
+    });
+  }
+  
+  // 启动代理服务器速度测试
+  initProxySpeedTest();
+  
+  // 批量创建图片元素
   Object.keys(layers).forEach((layerKey, layerIdx) => {
     const layer = layers[layerKey];
     const angleStep = 360 / config.imgsPerLayer;
 
     for (let i = 0; i < config.imgsPerLayer; i++) {
       const img = document.createElement('img');
-      img.className = 'cylinder-img';
+      img.className = 'cylinder-img loading';
 
       const randomIdx = Math.floor(Math.random() * imagePaths.length);
       const imgUrl = imagePaths[randomIdx];
-      img.src = imgUrl;
+      
       img.alt = `pic/${randomIdx + 1}`;
-      img.dataset.bigSrc = imgUrl;
+      img.dataset.originalSrc = imgUrl;
+      img.dataset.loaded = 'false';
+      
+      // 构建加载策略数组
+      function buildLoadStrategies() {
+        const strategies = [];
+        
+        // 添加最优代理服务器策略（最优先）
+        const optimalProxies = getOptimalProxies();
+        optimalProxies.forEach(proxy => {
+          strategies.push({
+            name: proxy.name,
+            getUrl: () => proxy.getUrl(imgUrl),
+            isApi: proxy.isApi
+          });
+        });
+        
+        // 添加直接加载策略
+        strategies.push({
+          name: '直接加载',
+          getUrl: () => imgUrl,
+          setup: (img) => {
+            img.crossOrigin = 'anonymous';
+          }
+        });
+        
+        // 添加fetch + blob作为最后兜底
+        strategies.push({
+          name: 'fetch + blob',
+          getUrl: null,
+          setup: (img) => {
+            // 使用Fetch API获取图片并转换为Blob URL
+            fetch(imgUrl, {
+              mode: 'cors',
+              credentials: 'omit',
+              // 添加超时控制
+              signal: AbortSignal.timeout(10000)
+            })
+            .then(response => {
+              if (!response.ok) throw new Error('Network response was not ok');
+              return response.blob();
+            })
+            .then(blob => {
+              const blobUrl = URL.createObjectURL(blob);
+              img.src = blobUrl;
+              img.dataset.bigSrc = blobUrl;
+              img.dataset.loaded = 'true';
+              // 缓存成功加载的图片
+              imageCache.set(imgUrl, blobUrl);
+              // 图片加载完成后移除loading类
+              img.classList.remove('loading');
+            })
+            .catch(error => {
+              console.error('Fetch + blob failed:', error);
+              tryNextStrategy();
+            });
+          }
+        });
+        
+        return strategies;
+      }
+      
+      const loadStrategies = buildLoadStrategies();
+      let currentStrategyIndex = 0;
+      
+      // 加载超时控制
+      let loadTimeout;
+      
+      function tryNextStrategy() {
+        // 清除之前的超时
+        if (loadTimeout) {
+          clearTimeout(loadTimeout);
+          loadTimeout = null;
+        }
+        
+        if (currentStrategyIndex >= loadStrategies.length) {
+          console.error('所有加载策略都失败了:', imgUrl);
+          // 所有方式都失败，显示占位图
+          img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23f0f0f0"/%3E%3Ctext x="50" y="55" font-size="12" text-anchor="middle" fill="%23999"%3E加载失败%3C/text%3E%3C/svg%3E';
+          img.dataset.bigSrc = img.src;
+          img.dataset.loaded = 'false';
+          // 移除loading类
+          img.classList.remove('loading');
+          return;
+        }
+        
+        const strategy = loadStrategies[currentStrategyIndex];
+        currentStrategyIndex++;
+        
+        console.log(`尝试加载策略: ${strategy.name} for ${imgUrl}`);
+        
+        // 重置事件监听器
+        img.onload = null;
+        img.onerror = null;
+        
+        if (strategy.setup) {
+          strategy.setup(img);
+        }
+        
+        if (strategy.getUrl) {
+          try {
+            const url = strategy.getUrl();
+            
+            // 设置加载超时
+            loadTimeout = setTimeout(() => {
+              console.error(`加载超时: ${strategy.name} for ${imgUrl}`);
+              tryNextStrategy();
+            }, 8000);
+            
+            img.onload = function() {
+              if (loadTimeout) {
+                clearTimeout(loadTimeout);
+                loadTimeout = null;
+              }
+              img.dataset.bigSrc = url;
+              img.dataset.loaded = 'true';
+              // 缓存成功加载的图片
+              imageCache.set(imgUrl, url);
+              // 图片加载完成后移除loading类
+              img.classList.remove('loading');
+              console.log(`加载成功: ${strategy.name} for ${imgUrl}`);
+            };
+            
+            img.onerror = function() {
+              if (loadTimeout) {
+                clearTimeout(loadTimeout);
+                loadTimeout = null;
+              }
+              console.warn(`加载失败: ${strategy.name} for ${imgUrl}, 尝试下一个策略`);
+              tryNextStrategy();
+            };
+            
+            img.src = url;
+          } catch (error) {
+            console.error(`策略执行失败: ${strategy.name} for ${imgUrl}`, error);
+            tryNextStrategy();
+          }
+        }
+      }
+      
+      // 添加到预加载队列
+      preloadQueue.push(() => {
+        return new Promise((resolve) => {
+          // 检查缓存
+          if (imageCache.has(imgUrl)) {
+            const cachedUrl = imageCache.get(imgUrl);
+            img.src = cachedUrl;
+            img.dataset.bigSrc = cachedUrl;
+            img.dataset.loaded = 'true';
+            img.classList.remove('loading');
+            console.log(`使用缓存加载: ${imgUrl}`);
+            resolve();
+            return;
+          }
+          
+          // 开始尝试加载策略
+          tryNextStrategy();
+          // 无论成功失败，都在10秒后 resolve
+          setTimeout(resolve, 10000);
+        });
+      });
 
       const rotateY = i * angleStep;
       img.style.width = `${imgWidth}px`;
@@ -308,8 +642,57 @@ function initImages() {
     }
   });
 
+  // 批量预加载图片，控制并发数
+  const concurrentLimit = 200;
+  let activeRequests = 0;
+  let currentIndex = 0;
+  let completedCount = 0;
+  const totalCount = preloadQueue.length;
+
+  // 性能监控
+  const loadStartTime = performance.now();
+
+  function processQueue() {
+    while (activeRequests < concurrentLimit && currentIndex < preloadQueue.length) {
+      activeRequests++;
+      const task = preloadQueue[currentIndex++];
+      task().then(() => {
+        activeRequests--;
+        completedCount++;
+        // 每完成10张图片打印一次进度
+        if (completedCount % 10 === 0) {
+          const elapsed = performance.now() - loadStartTime;
+          console.log(`图片加载进度: ${completedCount}/${totalCount} (${Math.round((completedCount/totalCount)*100)}%)，耗时: ${Math.round(elapsed)}ms`);
+        }
+        processQueue();
+      }).catch(() => {
+        activeRequests--;
+        completedCount++;
+        processQueue();
+      });
+    }
+    
+    // 所有图片加载完成
+    if (completedCount === totalCount && totalCount > 0) {
+      const totalElapsed = performance.now() - loadStartTime;
+      console.log(`所有图片加载完成，总耗时: ${Math.round(totalElapsed)}ms，平均每张: ${Math.round(totalElapsed/totalCount)}ms`);
+    }
+  }
+
+  // 开始处理预加载队列
+  console.log(`开始加载 ${totalCount} 张图片，并发数: ${concurrentLimit}`);
+  processQueue();
+
+  // 显示图片数量
   imgCount.textContent = `${imagePaths.length}张图片`;
-  loading.style.display = 'none';
+  
+  // 重置图片缓存，确保下次updateTransform能正确获取所有图片
+  cylinderImgs = [];
+  
+  // 延迟隐藏加载动画，确保有足够时间显示
+  setTimeout(() => {
+    loading.style.display = 'none';
+  }, 1000);
 }
 
 // 统一处理图片点击（打开大图）
@@ -345,11 +728,36 @@ function updateLayerOffsets() {
   }
 }
 
+// DOM元素缓存
+let imgInfo, imgInfoText, imgDownloadBtn;
+
 function openBigImg(src) {
   try {
     isRotating = false;
     bigImg.src = src;
     imgPopup.style.display = 'flex';
+    
+    // 初始化图片信息和下载按钮元素
+    if (!imgInfo) {
+      imgInfo = document.getElementById('imgInfo');
+      imgInfoText = document.getElementById('imgInfoText');
+      imgDownloadBtn = document.getElementById('imgDownloadBtn');
+    }
+    
+    // 更新图片信息
+    if (imgInfoText) {
+      // 从URL中提取图片名称
+      const urlParts = src.split('/');
+      const imgName = urlParts[urlParts.length - 1];
+      imgInfoText.textContent = `图片: ${imgName}`;
+    }
+    
+    // 设置下载按钮链接
+    if (imgDownloadBtn) {
+      imgDownloadBtn.href = src;
+      imgDownloadBtn.download = `image_${Date.now()}.jpg`;
+    }
+    
     // 移除缩放按钮相关逻辑
   } catch (e) {
     console.error('打开大图失败:', e);
@@ -366,6 +774,11 @@ function closeBigImg() {
   }
 }
 
+// 缓动函数
+function easeOutQuad(t) {
+  return t * (2 - t);
+}
+
 function autoRotate() {
   try {
     if (isRotating && !isDragging && cylinder) {
@@ -378,42 +791,80 @@ function autoRotate() {
   requestAnimationFrame(autoRotate);
 }
 
+// 缓存DOM元素查询结果
+let cylinderImgs = [];
+
 function updateTransform() {
   try {
+    // 缓存图片元素，减少DOM查询
+    if (cylinderImgs.length === 0) {
+      cylinderImgs = Array.from(document.querySelectorAll('.cylinder-img'));
+    }
+
     const ringRadius = config.baseRingRadius * currentScale;
     const imgWidth = calcImgWidth(ringRadius);
     const imgHeight = config.baseImgHeight * currentScale;
 
-    document.querySelectorAll('.cylinder-img').forEach(img => {
+    // 批量更新图片样式
+    cylinderImgs.forEach(img => {
       const rotateY = parseFloat(img.dataset.angle);
       if (isNaN(rotateY)) return;
-      img.style.width = `${imgWidth}px`;
-      img.style.height = `${imgHeight}px`;
-      img.style.transform = `translateY(-50%) rotateY(${rotateY}deg) translateZ(${ringRadius}px)`;
+      
+      // 减少不必要的样式更新
+      if (img.style.width !== `${imgWidth}px`) {
+        img.style.width = `${imgWidth}px`;
+      }
+      if (img.style.height !== `${imgHeight}px`) {
+        img.style.height = `${imgHeight}px`;
+      }
+      
+      // 计算并更新transform
+      const transformValue = `translateY(-50%) rotateY(${rotateY}deg) translateZ(${ringRadius}px)`;
+      if (img.style.transform !== transformValue) {
+        img.style.transform = transformValue;
+      }
 
+      // 移动端和桌面端显示逻辑
       if (!isMobileDevice) {
         const effective = ((rotateY + currentRotateY) % 360 + 360) % 360;
         if (effective > 90 && effective < 270) {
-          img.style.display = 'none';
-          img.style.pointerEvents = 'none';
+          if (img.style.display !== 'none') {
+            img.style.display = 'none';
+            img.style.pointerEvents = 'none';
+          }
         } else {
+          if (img.style.display !== 'block') {
+            img.style.display = 'block';
+            img.style.pointerEvents = 'auto';
+          }
+        }
+      } else {
+        if (img.style.display !== 'block') {
           img.style.display = 'block';
           img.style.pointerEvents = 'auto';
         }
-      } else {
-        img.style.display = 'block';
-        img.style.pointerEvents = 'auto';
       }
     });
 
     updateLayerOffsets();
+    
+    // 更新cylinder变换
     if (cylinder) {
-      cylinder.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+      const cylinderTransform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+      if (cylinder.style.transform !== cylinderTransform) {
+        cylinder.style.transform = cylinderTransform;
+      }
     }
   } catch (e) {
     console.error('更新变换失败:', e);
   }
 }
+
+// 惯性动画变量
+let inertiaTimer = null;
+let lastMoveTime = 0;
+let lastDeltaX = 0;
+let lastDeltaY = 0;
 
 function bindDrag() {
   if (!cylinder) return;
@@ -427,6 +878,15 @@ function bindDrag() {
     startY = e.clientY;
     startRotateX = currentRotateX;
     startRotateY = currentRotateY;
+    lastMoveTime = Date.now();
+    lastDeltaX = 0;
+    lastDeltaY = 0;
+    
+    // 清除惯性动画
+    if (inertiaTimer) {
+      cancelAnimationFrame(inertiaTimer);
+      inertiaTimer = null;
+    }
   });
 
   const handleMove = (clientX, clientY) => {
@@ -438,10 +898,48 @@ function bindDrag() {
 
     const deltaX = clientX - startX;
     const deltaY = clientY - startY;
+    const currentTime = Date.now();
+    
+    // 计算移动速度
+    const timeDiff = currentTime - lastMoveTime;
+    if (timeDiff > 0) {
+      lastDeltaX = deltaX;
+      lastDeltaY = deltaY;
+      lastMoveTime = currentTime;
+    }
+
     currentRotateY = startRotateY + deltaX * config.dragSensitivity;
     currentRotateX = startRotateX - deltaY * config.dragSensitivity;
     currentRotateX = Math.max(-40, Math.min(50, currentRotateX));
     updateTransform();
+  };
+
+  // 应用惯性动画
+  const applyInertia = () => {
+    if (!isDragging) {
+      const inertiaFactor = 0.5;
+      const minInertia = 0.01;
+      
+      let hasInertia = false;
+      
+      if (Math.abs(lastDeltaX) > minInertia) {
+        lastDeltaX *= inertiaFactor;
+        currentRotateY += lastDeltaX * config.dragSensitivity * 0.1;
+        hasInertia = true;
+      }
+      
+      if (Math.abs(lastDeltaY) > minInertia) {
+        lastDeltaY *= inertiaFactor;
+        currentRotateX -= lastDeltaY * config.dragSensitivity * 0.1;
+        currentRotateX = Math.max(-40, Math.min(50, currentRotateX));
+        hasInertia = true;
+      }
+      
+      if (hasInertia) {
+        updateTransform();
+        inertiaTimer = requestAnimationFrame(applyInertia);
+      }
+    }
   };
 
   // 鼠标拖拽
@@ -452,10 +950,14 @@ function bindDrag() {
   document.addEventListener('mouseup', () => {
     isDragging = false;
     isClickDrag = false;
+    // 应用惯性动画
+    applyInertia();
   });
   document.addEventListener('mouseleave', () => {
     isDragging = false;
     isClickDrag = false;
+    // 应用惯性动画
+    applyInertia();
   });
 
   // 移动端触摸（修复拖拽/点击冲突）
@@ -470,6 +972,15 @@ function bindDrag() {
       startY = touch.clientY;
       startRotateX = currentRotateX;
       startRotateY = currentRotateY;
+      lastMoveTime = Date.now();
+      lastDeltaX = 0;
+      lastDeltaY = 0;
+      
+      // 清除惯性动画
+      if (inertiaTimer) {
+        cancelAnimationFrame(inertiaTimer);
+        inertiaTimer = null;
+      }
     }
   }, { passive: false });
 
@@ -485,6 +996,8 @@ function bindDrag() {
     isDragging = false;
     // 延迟重置，避免快速触摸误判
     setTimeout(() => { isClickDrag = false; }, 100);
+    // 应用惯性动画
+    applyInertia();
   });
 }
 
@@ -499,6 +1012,12 @@ function bindScale() {
     currentScale = Math.max(config.minScale, Math.min(config.maxScale, currentScale + delta));
     scaleRange.value = currentScale;
     scaleValue.textContent = Math.round(currentScale * 100) + '%';
+    
+    const min = parseFloat(scaleRange.min);
+    const max = parseFloat(scaleRange.max);
+    const progress = ((currentScale - min) / (max - min)) * 100;
+    scaleRange.style.setProperty('--progress', `${progress}%`);
+    
     updateTransform();
   }, { passive: false });
 
@@ -529,11 +1048,24 @@ function bindScale() {
       currentScale = parseFloat(e.target.value);
       if (isNaN(currentScale)) currentScale = 1;
       scaleValue.textContent = Math.round(currentScale * 100) + '%';
+      
+      // 更新缩放控件的进度条
+      const min = parseFloat(scaleRange.min);
+      const max = parseFloat(scaleRange.max);
+      const progress = ((currentScale - min) / (max - min)) * 100;
+      scaleRange.style.setProperty('--progress', `${progress}%`);
+      
       updateTransform();
     } catch (e) {
       console.error('滑杆缩放失败:', e);
     }
   });
+  
+  // 初始化缩放控件的进度条
+  const min = parseFloat(scaleRange.min);
+  const max = parseFloat(scaleRange.max);
+  const initialProgress = ((currentScale - min) / (max - min)) * 100;
+  scaleRange.style.setProperty('--progress', `${initialProgress}%`);
   // 初始化滑动条值
   scaleRange.value = currentScale;
   scaleValue.textContent = Math.round(currentScale * 100) + '%';
@@ -685,6 +1217,8 @@ function backgroundPreload() {
     if (copy.length === 0) return;
     const url = copy.shift();
     const img = new Image();
+    // 添加CORS兼容处理
+    img.crossOrigin = "anonymous";
     img.src = url;
     img.onload = img.onerror = () => {
       if (window.requestIdleCallback) {
@@ -702,22 +1236,42 @@ function backgroundPreload() {
   }
 }
 
+// 防抖函数，减少窗口调整时的频繁重绘
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// 优化窗口大小变化处理，减少重绘和回流
 function handleResize() {
   isMobileDevice = detectMobileDevice();
-  updateTransform();
+  // 使用requestAnimationFrame优化重绘
+  requestAnimationFrame(() => {
+    updateTransform();
+  });
 }
+
+// 创建防抖版本的resize处理函数
+const debouncedHandleResize = debounce(handleResize, 100);
 
 function init() {
   try {
-    // 移除缩放按钮初始化
-    // initScaleToggleBtn();
+    // 初始化缩放按钮
+    initScaleToggleBtn();
     bindDrag();
     bindScale();
     bindBigImgZoom();
     initImages();
     autoRotate();
     backgroundPreload();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', debouncedHandleResize);
     console.log('初始化完成，是否移动端:', isMobileDevice);
   } catch (e) {
     console.error('初始化失败:', e);
@@ -725,12 +1279,52 @@ function init() {
   }
 }
 
+// 粒子系统初始化
+function initParticles() {
+  const container = document.getElementById('particlesContainer');
+  if (!container) return;
+
+  const particleCount = 50; // 粒子数量
+
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // 随机位置
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.top = Math.random() * 100 + '%';
+    
+    // 随机大小
+    const size = Math.random() * 4 + 2; // 2-6px
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    
+    // 随机动画延迟
+    particle.style.animationDelay = Math.random() * 10 + 's';
+    
+    // 随机动画持续时间
+    const duration = Math.random() * 5 + 8; // 8-13s
+    particle.style.animationDuration = duration + 's';
+    
+    // 随机颜色
+    const opacity = Math.random() * 0.5 + 0.3; // 0.3-0.8
+    particle.style.background = `rgba(255, 255, 255, ${opacity})`;
+    particle.style.boxShadow = `0 0 10px rgba(255, 255, 255, ${opacity + 0.2})`;
+    
+    container.appendChild(particle);
+  }
+}
+
 // 确保DOM加载完成后执行
 function initApp() {
   if (document.readyState === 'interactive' || document.readyState === 'complete') {
     init();
+    initParticles(); // 初始化粒子系统
   } else {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      initParticles(); // 初始化粒子系统
+    });
   }
 }
 window.addEventListener('load', initApp);

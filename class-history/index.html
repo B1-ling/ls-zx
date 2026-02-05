@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级历史书 - 「笃行致远·拾光成纪」企划</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../books/css/all.min.css">
+    <style>
+        /* 全局重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', '微软雅黑', sans-serif;
+        }
+
+        /* CSS变量 - 主站配色方案 */
+        :root {
+            /* 主色调 - 青绿色 */
+            --primary-50: #ecfeff;
+            --primary-100: #cffafe;
+            --primary-200: #a5f3fc;
+            --primary-300: #67e8f9;
+            --primary-400: #22d3ee;
+            --primary-500: #14b8a6;
+            --primary-600: #0d9488;
+            --primary-700: #0f766e;
+            --primary-800: #115e59;
+            --primary-900: #134e4a;
+            --primary-950: #042f2e;
+            
+            /* 辅助色 - 橙色 */
+            --secondary-50: #fff7ed;
+            --secondary-100: #ffedd5;
+            --secondary-200: #fed7aa;
+            --secondary-300: #fdba74;
+            --secondary-400: #fb923c;
+            --secondary-500: #f97316;
+            --secondary-600: #ea580c;
+            --secondary-700: #c2410c;
+            --secondary-800: #9a3412;
+            --secondary-900: #7c2d12;
+            --secondary-950: #431407;
+            
+            /* 文本色 */
+            --text-dark: #1e293b;
+            --text-light: #94a3b8;
+            --text-muted: #cbd5e1;
+            
+            /* 背景色 */
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-muted: #f1f5f9;
+            
+            /* 边框色 */
+            --border-light: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --border-dark: #94a3b8;
+            
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            /* 圆角 */
+            --border-radius-sm: 0.25rem;
+            --border-radius-md: 0.375rem;
+            --border-radius-lg: 0.5rem;
+            --border-radius-xl: 0.75rem;
+            --border-radius-2xl: 1rem;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 120px;
+            overflow-x: hidden;
+        }
+
+        /* 添加页面加载动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 顶部标题栏 */
+        .page-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-400) 0%, var(--primary-600) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 40px;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+            vertical-align: middle;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 100%);
+            color: var(--primary-600);
+            padding: 5px 15px;
+            border-radius: 20px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .back-to-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+            margin-left: auto;
+        }
+
+        .back-to-home:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4);
+        }
+
+        /* 主内容容器 */
+        .main-container {
+            flex: 1;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* PDF阅读器专用样式 */
+        .pdf-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 0 auto;
+            max-width: 1200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(20, 184, 166, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(20, 184, 166, 0.2);
+        }
+
+        .pdf-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-600);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pdf-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pdf-control-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary-300), var(--primary-500));
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .pdf-control-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+        }
+
+        .pdf-reader {
+            position: relative;
+            width: 100%;
+            min-height: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: #f5f5f5;
+        }
+
+        .pdf-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            border-bottom: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 12px 12px 0 0;
+        }
+
+        #pdfViewer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background-color: white;
+            min-height: 700px;
+        }
+
+        #pdfViewer canvas {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .pdf-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            color: var(--primary-600);
+            text-align: center;
+            padding: 40px;
+        }
+
+        .pdf-placeholder i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .pdf-placeholder h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .pdf-placeholder p {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 30px;
+        }
+
+        .upload-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, var(--secondary-300), var(--secondary-500));
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--secondary-400), var(--secondary-600));
+            box-shadow: 0 6px 18px rgba(249, 115, 22, 0.3);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 48px 32px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-medium);
+            box-shadow: 0 -16px 48px rgba(14, 165, 233, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        footer:hover {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 -20px 64px rgba(14, 165, 233, 0.15);
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--secondary-500), #f093fb, #f5576c);
+        }
+
+        footer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.05) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-logo:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer-logo img {
+            height: 36px;
+            width: auto;
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .footer-logo img:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .footer-logo h3 {
+            font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .footer-text {
+            margin-bottom: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .footer-copyright {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: var(--border-radius-xl);
+            display: inline-block;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .footer-copyright:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(14, 165, 233, 0.15);
+            color: var(--primary-500);
+        }
+
+        /* 动画效果 */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 140px;
+            }
+
+            .page-header {
+                padding: 0 15px;
+                flex-direction: column;
+                height: auto;
+                padding: 10px 15px;
+                gap: 10px;
+            }
+
+            .header-left {
+                font-size: 14px;
+                margin-right: 0;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .logo-img {
+                height: 35px;
+            }
+
+            .header-title {
+                font-size: 18px;
+                padding: 4px 12px;
+                margin: 0 auto;
+            }
+
+            .back-to-home {
+                padding: 6px 12px;
+                font-size: 12px;
+                margin-left: 0;
+                margin: 0 auto;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+
+            .pdf-container {
+                padding: 15px;
+            }
+
+            .pdf-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .pdf-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .pdf-reader {
+                min-height: 600px;
+            }
+
+            .pdf-title {
+                font-size: 18px;
+            }
+
+            .pdf-toolbar {
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px;
+                justify-content: center;
+            }
+
+            .pdf-control-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            /* 为移动设备优化触摸目标大小 */
+            @media (max-width: 480px) {
+                .pdf-control-btn {
+                    height: 44px;
+                    min-width: 90px;
+                    font-size: 13px;
+                }
+            }
+
+            #pdfViewer {
+                padding: 10px;
+                min-height: 500px;
+            }
+
+            #pageInfo {
+                margin: 0 10px;
+                font-size: 12px;
+            }
+
+            .footer {
+                padding: 15px 0;
+                font-size: 12px;
+            }
+        }
+    </style>
+    <!-- PDF.js库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        // 设置PDF.js工作器路径
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
+</head>
+
+<body>
+    <!-- 顶部标题栏 -->
+    <header class="page-header">
+        <div class="header-left">
+            <img src="../logo.png" alt="logo" class="logo-img">
+            「笃行致远·拾光成纪」
+        </div>
+        <div class="header-title">班级历史书</div>
+        <a href="../index.html" class="back-to-home">
+            <i class="fas fa-home"></i> 返回主站
+        </a>
+    </header>
+
+    <main class="main-container">
+        <div class="pdf-container">
+            <div class="pdf-header">
+                <div class="pdf-title">
+                    <i class="fas fa-book"></i>
+                    班级历史书 PDF阅读器
+                </div>
+                <div class="pdf-controls">
+                    <button class="pdf-control-btn" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                    <button class="pdf-control-btn" id="fullscreenBtn">
+                        <i class="fas fa-expand"></i> 全屏
+                    </button>
+                </div>
+            </div>
+            <div class="pdf-reader" id="pdfReader">
+                <div class="pdf-placeholder" id="pdfPlaceholder">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>欢迎使用班级历史书阅读器</h3>
+                    <p>正在加载班级历史书...</p>
+                </div>
+                <!-- PDF.js渲染区域 -->
+                <div id="pdfContainer" style="display: none;">
+                    <div class="pdf-toolbar">
+                        <button class="pdf-control-btn" id="prevPage">
+                            <i class="fas fa-chevron-left"></i> 上一页
+                        </button>
+                        <button class="pdf-control-btn" id="nextPage">
+                            下一页 <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <span id="pageInfo" style="margin: 0 15px; color: var(--text-dark); font-weight: bold;"></span>
+                        <button class="pdf-control-btn" id="zoomIn">
+                            <i class="fas fa-search-plus"></i> 放大
+                        </button>
+                        <button class="pdf-control-btn" id="zoomOut">
+                            <i class="fas fa-search-minus"></i> 缩小
+                        </button>
+                    </div>
+                    <div id="pdfViewer" style="margin-top: 0;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="../logo.png" alt="logo">
+                <h3>「笃行致远·拾光成纪」</h3>
+            </div>
+            <div class="footer-text">
+                <p>记录成长·分享回忆·共创未来</p>
+            </div>
+            <div class="footer-copyright">
+                © 2026 「笃行致远·拾光成纪」企划. 保留所有权利.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 等待DOM加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查PDF.js库是否加载
+            if (typeof pdfjsLib === 'undefined') {
+                console.error('PDF.js库未加载');
+                alert('PDF.js库加载失败，请刷新页面重试');
+                return;
+            }
+            
+            // PDF阅读器功能
+            const pdfReader = document.getElementById('pdfReader');
+            const pdfPlaceholder = document.getElementById('pdfPlaceholder');
+            const pdfContainer = document.getElementById('pdfContainer');
+            const pdfViewer = document.getElementById('pdfViewer');
+            const pageInfo = document.getElementById('pageInfo');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            
+            // PDF.js相关变量
+            let pdfDoc = null;
+            let currentPage = 1;
+            let zoom = 1.0;
+            
+            // 直接加载一班历史Demo0.1.1.pdf文件
+            function loadPDF() {
+                try {
+                    // 隐藏占位符，显示PDF容器
+                    pdfPlaceholder.style.display = 'none';
+                    pdfContainer.style.display = 'block';
+                    
+                    // 尝试不同的路径格式
+                    const pdfPaths = [
+                        '一班历史Demo0.1.1.pdf',
+                        './一班历史Demo0.1.1.pdf',
+                        'class-history/一班历史Demo0.1.1.pdf',
+                        './class-history/一班历史Demo0.1.1.pdf'
+                    ];
+                    
+                    let currentPathIndex = 0;
+                    
+                    function tryLoadPath() {
+                        if (currentPathIndex >= pdfPaths.length) {
+                            console.error('所有路径都尝试失败');
+                            alert('无法找到PDF文件，请检查文件是否存在');
+                            pdfPlaceholder.style.display = 'flex';
+                            pdfContainer.style.display = 'none';
+                            return;
+                        }
+                        
+                        const pdfPath = pdfPaths[currentPathIndex];
+                        console.log(`尝试加载PDF文件 (${currentPathIndex + 1}/${pdfPaths.length}):`, pdfPath);
+                        
+                        // 使用PDF.js直接加载
+                        pdfjsLib.getDocument(pdfPath).promise
+                            .then(function(pdf) {
+                                console.log('PDF文件加载成功，页数:', pdf.numPages);
+                                pdfDoc = pdf;
+                                pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
+                                renderPage(1);
+                                
+                                // 显示PDF.js专用的控制按钮
+                                prevPageBtn.style.display = 'inline-block';
+                                nextPageBtn.style.display = 'inline-block';
+                                zoomInBtn.style.display = 'inline-block';
+                                zoomOutBtn.style.display = 'inline-block';
+                                pageInfo.style.display = 'inline-block';
+                            })
+                            .catch(function(error) {
+                                console.error(`Error loading PDF from ${pdfPath}:`, error);
+                                currentPathIndex++;
+                                tryLoadPath();
+                            });
+                    }
+                    
+                    // 开始尝试加载
+                    tryLoadPath();
+                    
+                } catch (error) {
+                    console.error('Error loading PDF:', error);
+                    alert('处理文件时出错，请刷新页面重试');
+                    pdfPlaceholder.style.display = 'flex';
+                    pdfContainer.style.display = 'none';
+                }
+            }
+            
+            // 页面加载完成后直接加载PDF文件
+            loadPDF();
+            
+            // 渲染PDF页面
+            function renderPage(num) {
+                if (!pdfDoc) return;
+                
+                pdfDoc.getPage(num).then(function(page) {
+                    const viewport = page.getViewport({scale: zoom});
+                    
+                    // 创建canvas元素
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    // 清空阅读器容器并添加canvas
+                    pdfViewer.innerHTML = '';
+                    pdfViewer.appendChild(canvas);
+                    
+                    // 渲染PDF页面到canvas
+                    const renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    
+                    page.render(renderContext).promise.then(function() {
+                        currentPage = num;
+                        pageInfo.textContent = `第 ${num} / ${pdfDoc.numPages} 页`;
+                    }).catch(function(error) {
+                        console.error('Error rendering page:', error);
+                        alert('渲染页面时出错，请尝试刷新页面');
+                    });
+                }).catch(function(error) {
+                    console.error('Error getting page:', error);
+                    alert('获取页面时出错，请尝试刷新页面');
+                });
+            }
+            
+            // 上一页
+            prevPageBtn.addEventListener('click', function() {
+                if (pdfDoc && currentPage > 1) {
+                    renderPage(currentPage - 1);
+                }
+            });
+            
+            // 下一页
+            nextPageBtn.addEventListener('click', function() {
+                if (pdfDoc && currentPage < pdfDoc.numPages) {
+                    renderPage(currentPage + 1);
+                }
+            });
+            
+            // 放大
+            zoomInBtn.addEventListener('click', function() {
+                if (pdfDoc && zoom < 2.0) {
+                    zoom += 0.2;
+                    renderPage(currentPage);
+                }
+            });
+            
+            // 缩小
+            zoomOutBtn.addEventListener('click', function() {
+                if (pdfDoc && zoom > 0.5) {
+                    zoom -= 0.2;
+                    renderPage(currentPage);
+                }
+            });
+            
+            // 为移动设备添加触摸手势支持
+            let startX = 0;
+            let startY = 0;
+            let lastDistance = 0;
+            
+            pdfViewer.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    // 双指触摸开始
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    lastDistance = Math.sqrt(
+                        Math.pow(touch2.clientX - touch1.clientX, 2) +
+                        Math.pow(touch2.clientY - touch1.clientY, 2)
+                    );
+                }
+            });
+            
+            pdfViewer.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2 && pdfDoc) {
+                    // 双指触摸移动（缩放）
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = Math.sqrt(
+                        Math.pow(touch2.clientX - touch1.clientX, 2) +
+                        Math.pow(touch2.clientY - touch1.clientY, 2)
+                    );
+                    
+                    // 计算缩放比例
+                    if (lastDistance > 0) {
+                        const scaleFactor = currentDistance / lastDistance;
+                        if (scaleFactor > 1.1) {
+                            // 放大
+                            if (zoom < 2.0) {
+                                zoom *= 1.1;
+                                renderPage(currentPage);
+                                lastDistance = currentDistance;
+                            }
+                        } else if (scaleFactor < 0.9) {
+                            // 缩小
+                            if (zoom > 0.5) {
+                                zoom *= 0.9;
+                                renderPage(currentPage);
+                                lastDistance = currentDistance;
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 刷新按钮
+            refreshBtn.addEventListener('click', function() {
+                location.reload();
+            });
+            
+            // 全屏按钮
+            fullscreenBtn.addEventListener('click', function() {
+                const targetElement = pdfContainer;
+                if (!document.fullscreenElement) {
+                    targetElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                        alert('进入全屏模式失败，请检查浏览器权限');
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            });
+            
+            // 监听全屏状态变化
+            document.addEventListener('fullscreenchange', function() {
+                const fullscreenIcon = fullscreenBtn.querySelector('i');
+                if (document.fullscreenElement) {
+                    fullscreenIcon.className = 'fas fa-compress';
+                } else {
+                    fullscreenIcon.className = 'fas fa-expand';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
