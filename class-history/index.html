@@ -795,7 +795,7 @@
                     const loadTimeout = setTimeout(() => {
                         console.error('PDF加载超时');
                         updateLoadingStatus('加载超时', 'PDF文件加载时间过长');
-                        alert('PDF文件加载时间过长，请检查网络连接或尝试直接下载');
+                        alert('PDF文件加载时间过长，请检查网络连接或尝试稍后再试');
                     }, 15000); // 加载超时时间设为15秒
                     
                     // 使用PDF.js加载
@@ -838,7 +838,7 @@
                             clearTimeout(loadTimeout);
                             console.error('PDF加载失败:', error);
                             updateLoadingStatus('加载失败', '无法加载PDF文件');
-                            alert('无法加载PDF文件，请尝试使用页面上方的"直接下载"按钮查看');
+                            alert('无法加载PDF文件，请检查网络连接或稍后再试。');
                         });
                 } catch (error) {
                     console.error('Error loading PDF:', error);
