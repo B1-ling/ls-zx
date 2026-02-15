@@ -1,0 +1,13 @@
+{
+    "github": {
+        "username": "B1-Ling",
+        "repository": "ls-zx",
+        "branch": "main"
+    },
+    "pdf": {
+        "filename": "一班历史Demo0.1.1.pdf",
+        "localPath": "class-history/"
+    },
+    "timeout": 15000,
+    "retryDelay": 300
+}

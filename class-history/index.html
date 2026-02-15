@@ -781,69 +781,204 @@
                 }
             }
 
-            // 直接加载一班历史Demo0.1.1.pdf文件
-            function loadPDF() {
+            // PDF代理源配置 - 从配置文件或默认值加载
+            const defaultConfig = {
+                github: {
+                    username: 'B1-Ling',
+                    repository: 'ls-zx',
+                    branch: 'main'
+                },
+                pdf: {
+                    filename: '一班历史Demo0.1.1.pdf',
+                    localPath: 'class-history/'
+                },
+                timeout: 15000,
+                retryDelay: 300
+            };
+
+            // 生成代理源URL - 按可靠性排序
+            function generateSources(config) {
+                const { username, repository, branch } = config.github;
+                const { filename, localPath } = config.pdf;
+                
+                return [
+                    {
+                        name: '本地文件',
+                        url: filename,
+                        type: 'local'
+                    },
+                    {
+                        name: 'jsDelivr',
+                        url: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${localPath}${filename}`,
+                        type: 'cdn'
+                    },
+                    {
+                        name: 'jsDelivr (Fast)',
+                        url: `https://fastly.jsdelivr.net/gh/${username}/${repository}@${branch}/${localPath}${filename}`,
+                        type: 'cdn'
+                    },
+                    {
+                        name: 'jsDelivr (Testing)',
+                        url: `https://testingcf.jsdelivr.net/gh/${username}/${repository}@${branch}/${localPath}${filename}`,
+                        type: 'cdn'
+                    },
+                    {
+                        name: 'GitHub Raw',
+                        url: `https://raw.githubusercontent.com/${username}/${repository}/${branch}/${localPath}${filename}`,
+                        type: 'origin'
+                    },
+                    {
+                        name: 'GitHub (ghproxy)',
+                        url: `https://ghproxy.net/https://raw.githubusercontent.com/${username}/${repository}/${branch}/${localPath}${filename}`,
+                        type: 'proxy'
+                    },
+                    {
+                        name: 'GitHub (moeyy)',
+                        url: `https://github.moeyy.xyz/https://raw.githubusercontent.com/${username}/${repository}/${branch}/${localPath}${filename}`,
+                        type: 'proxy'
+                    },
+                    {
+                        name: 'GitHack',
+                        url: `https://raw.githack.com/${username}/${repository}/${branch}/${localPath}${filename}`,
+                        type: 'cdn'
+                    },
+                    {
+                        name: 'GitCDN',
+                        url: `https://gitcdn.link/repo/${username}/${repository}/${branch}/${localPath}${filename}`,
+                        type: 'cdn'
+                    }
+                ];
+            }
+
+            let pdfSources = generateSources(defaultConfig);
+            let currentSourceIndex = 0;
+            let loadAttempts = 0;
+            const maxAttempts = pdfSources.length;
+            let sourceLoadTimeout = defaultConfig.timeout;
+            let retryDelay = defaultConfig.retryDelay;
+
+            // 尝试加载配置文件
+            async function loadConfig() {
                 try {
-                    console.log('开始加载PDF文件...');
-                    updateLoadingStatus('正在准备加载...', '初始化PDF阅读器');
+                    const response = await fetch('pdf-config.json');
+                    if (response.ok) {
+                        const config = await response.json();
+                        pdfSources = generateSources(config);
+                        sourceLoadTimeout = config.timeout || 10000;
+                        retryDelay = config.retryDelay || 500;
+                        console.log('配置文件加载成功:', config);
+                    }
+                } catch (error) {
+                    console.log('使用默认配置:', error.message);
+                }
+            }
+
+            // 尝试从指定源加载PDF
+            function tryLoadFromSource(sourceIndex) {
+                return new Promise((resolve, reject) => {
+                    const source = pdfSources[sourceIndex];
+                    console.log(`尝试从 ${source.name} 加载PDF...`);
+                    updateLoadingStatus(`正在从 ${source.name} 加载...`, `源 ${sourceIndex + 1}/${maxAttempts}`);
                     
-                    // 直接使用PDF.js加载PDF文件
-                    const pdfPath = '一班历史Demo0.1.1.pdf';
-                    console.log('PDF文件路径:', pdfPath);
+                    const timeoutId = setTimeout(() => {
+                        reject(new Error(`从 ${source.name} 加载超时`));
+                    }, sourceLoadTimeout);
                     
-                    // 设置加载超时
-                    const loadTimeout = setTimeout(() => {
-                        console.error('PDF加载超时');
-                        updateLoadingStatus('加载超时', 'PDF文件加载时间过长');
-                        alert('PDF文件加载时间过长，请检查网络连接或尝试稍后再试');
-                    }, 15000); // 加载超时时间设为15秒
-                    
-                    // 使用PDF.js加载
                     const loadingTask = pdfjsLib.getDocument({
-                        url: pdfPath,
-                        // 添加进度回调
+                        url: source.url,
+                        withCredentials: false,
                         onProgress: function({ loaded, total }) {
                             if (total > 0) {
                                 const progressPercent = Math.round((loaded / total) * 100);
-                                updateLoadingStatus(`正在加载PDF文件... ${progressPercent}%`, '直接加载');
+                                updateLoadingStatus(`从 ${source.name} 加载中... ${progressPercent}%`, `已加载 ${Math.round(loaded/1024)}KB`);
                             }
                         }
                     });
                     
                     loadingTask.promise
                         .then(function(pdf) {
-                            clearTimeout(loadTimeout);
-                            console.log('PDF文件加载成功，页数:', pdf.numPages);
-                            updateLoadingStatus('加载完成', `共 ${pdf.numPages} 页`);
-                            
-                            // 短暂延迟，让用户看到加载完成状态
-                            setTimeout(() => {
-                                // 隐藏占位符，显示PDF容器
-                                pdfPlaceholder.style.display = 'none';
-                                pdfContainer.style.display = 'block';
-                                
-                                pdfDoc = pdf;
-                                pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
-                                renderPage(1);
-                                
-                                // 显示PDF.js专用的控制按钮
-                                prevPageBtn.style.display = 'inline-block';
-                                nextPageBtn.style.display = 'inline-block';
-                                zoomInBtn.style.display = 'inline-block';
-                                zoomOutBtn.style.display = 'inline-block';
-                                pageInfo.style.display = 'inline-block';
-                            }, 800);
+                            clearTimeout(timeoutId);
+                            console.log(`从 ${source.name} 加载成功`);
+                            resolve(pdf);
                         })
                         .catch(function(error) {
-                            clearTimeout(loadTimeout);
-                            console.error('PDF加载失败:', error);
-                            updateLoadingStatus('加载失败', '无法加载PDF文件');
-                            alert('无法加载PDF文件，请检查网络连接或稍后再试。');
+                            clearTimeout(timeoutId);
+                            console.warn(`从 ${source.name} 加载失败:`, error.message);
+                            reject(error);
                         });
+                });
+            }
+
+            // 依次尝试所有源
+            async function loadPDFWithFallback() {
+                for (let i = 0; i < maxAttempts; i++) {
+                    try {
+                        currentSourceIndex = i;
+                        const pdf = await tryLoadFromSource(i);
+                        return pdf;
+                    } catch (error) {
+                        loadAttempts++;
+                        if (i < maxAttempts - 1) {
+                            console.log(`切换到下一个源...`);
+                            updateLoadingStatus(`${pdfSources[i].name} 失败，正在切换...`, `尝试备用源 ${i + 2}`);
+                            await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        }
+                    }
+                }
+                throw new Error('所有源都加载失败');
+            }
+
+            // 加载PDF文件（带多源切换）
+            async function loadPDF() {
+                try {
+                    console.log('开始加载PDF文件...');
+                    updateLoadingStatus('正在初始化...', '加载配置');
+                    
+                    // 先加载配置文件
+                    await loadConfig();
+                    
+                    updateLoadingStatus('正在准备加载...', '初始化PDF阅读器');
+                    
+                    const pdf = await loadPDFWithFallback();
+                    
+                    console.log('PDF文件加载成功，页数:', pdf.numPages);
+                    updateLoadingStatus('加载完成', `共 ${pdf.numPages} 页`);
+                    
+                    setTimeout(() => {
+                        pdfPlaceholder.style.display = 'none';
+                        pdfContainer.style.display = 'block';
+                        
+                        pdfDoc = pdf;
+                        pageInfo.textContent = `第 1 / ${pdf.numPages} 页`;
+                        renderPage(1);
+                        
+                        prevPageBtn.style.display = 'inline-block';
+                        nextPageBtn.style.display = 'inline-block';
+                        zoomInBtn.style.display = 'inline-block';
+                        zoomOutBtn.style.display = 'inline-block';
+                        pageInfo.style.display = 'inline-block';
+                    }, 500);
+                    
                 } catch (error) {
-                    console.error('Error loading PDF:', error);
-                    updateLoadingStatus('加载失败', '处理文件时出错');
-                    alert('处理文件时出错，请刷新页面重试');
+                    console.error('所有PDF源加载失败:', error);
+                    updateLoadingStatus('加载失败', '所有源都无法访问');
+                    
+                    pdfPlaceholder.innerHTML = `
+                        <div class="loading-container">
+                            <div class="loading-circle" style="border-color: rgba(249, 115, 22, 0.3); border-top-color: #f97316;">
+                                <i class="fas fa-exclamation-triangle" style="color: #f97316;"></i>
+                            </div>
+                            <div class="loading-text-container">
+                                <div class="loading-title" style="background: linear-gradient(90deg, #f97316, #ea580c);">PDF加载失败</div>
+                                <div class="loading-progress">所有镜像源都无法访问</div>
+                                <div class="loading-status" style="margin-top: 20px;">
+                                    <button onclick="location.reload()" style="padding: 10px 20px; border: none; border-radius: 20px; background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; cursor: pointer; font-size: 14px;">
+                                        <i class="fas fa-redo"></i> 重新加载
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 }
             }
             
