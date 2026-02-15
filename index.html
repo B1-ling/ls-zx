@@ -4,23 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="「笃行致远·拾光成纪」企划主站 - 记录成长、分享回忆的综合企划">
     <title>「笃行致远·拾光成纪」企划主站</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
+    
     <link rel="stylesheet" href="books/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
+    
+    <style>
+        .particles{contain:strict}.particle{will-change:transform,opacity;contain:strict}
+    </style>
 </head>
 
 <body>
-    <!-- 粒子背景 -->
     <div class="particles"></div>
     
-    <!-- 顶部导航栏 -->
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-logo">
-                <img src="logo.png" alt="logo" class="logo-img">
+                <img src="logo.png" alt="logo" class="logo-img" width="48" height="48" loading="eager" decoding="async">
                 <h2>「笃行致远·拾光成纪」</h2>
             </div>
             <div class="navbar-menu">
@@ -34,7 +43,6 @@
                     <li><a href="#photo-wall" class="nav-link">3D图片墙</a></li>
                 </ul>
             </div>
-            <!-- 移动端菜单按钮 -->
             <div class="menu-toggle">
                 <i class="fas fa-bars"></i>
             </div>
@@ -43,9 +51,6 @@
     
     <div class="main-container">
         <header>
-            <div class="decor-element"></div>
-            <div class="decor-element"></div>
-            <div class="decor-element"></div>
             <h1>「笃行致远·拾光成纪」</h1>
             <p class="subtitle">A Plan of Persistence and Memory</p>
             <p class="description">
@@ -360,7 +365,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-logo">
-                <img src="logo.png" alt="logo">
+                <img src="logo.png" alt="logo" width="36" height="36" loading="lazy" decoding="async">
                 <h3>「笃行致远·拾光成纪」</h3>
             </div>
             <div class="footer-text">
@@ -372,7 +377,7 @@
         </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
 </body>
 
 </html>

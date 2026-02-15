@@ -1,93 +1,106 @@
-// 生成粒子背景
-function createParticles() {
-    const particlesContainer = document.querySelector('.particles');
-    const particleCount = 50;
+(function() {
+    'use strict';
     
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 15 + 's';
-        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-        particle.style.width = (Math.random() * 3 + 2) + 'px';
-        particle.style.height = particle.style.width;
-        particlesContainer.appendChild(particle);
-    }
-}
-
-// 平滑滚动功能，修复导航链接定位问题
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', function (e) {
-        // 获取目标链接
-        const href = this.getAttribute('href');
+    var particleCount = 25;
+    var particlesCreated = false;
+    
+    function createParticles() {
+        if (particlesCreated) return;
+        particlesCreated = true;
         
-        // 只对内部链接处理平滑滚动
-        if (href.startsWith('#')) {
-            e.preventDefault();
-            
-            // 如果是首页链接，滚动到顶部
-            if (href === '#') {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            } else {
-                // 对于其他内部链接，定位到对应的内容区块
-                const targetId = href.substring(1);
-                const targetElement = document.getElementById(targetId);
+        var particlesContainer = document.querySelector('.particles');
+        if (!particlesContainer) return;
+        
+        var fragment = document.createDocumentFragment();
+        
+        for (var i = 0; i < particleCount; i++) {
+            var particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.width = (Math.random() * 3 + 2) + 'px';
+            particle.style.height = particle.style.width;
+            fragment.appendChild(particle);
+        }
+        
+        particlesContainer.appendChild(fragment);
+    }
+    
+    function initSmoothScroll() {
+        var navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                var href = this.getAttribute('href');
                 
-                if (targetElement) {
-                    // 计算滚动位置，考虑导航栏高度
-                    const navHeight = 70; // 导航栏高度
-                    const targetPosition = targetElement.offsetTop - navHeight;
+                if (href && href.startsWith('#')) {
+                    e.preventDefault();
                     
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
+                    if (href === '#') {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        var targetId = href.substring(1);
+                        var targetElement = document.getElementById(targetId);
+                        
+                        if (targetElement) {
+                            var navHeight = 80;
+                            var targetPosition = targetElement.offsetTop - navHeight;
+                            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+                        }
+                    }
+                    
+                    navLinks.forEach(function(navLink) {
+                        navLink.classList.remove('active');
                     });
+                    this.classList.add('active');
+                }
+            });
+        });
+    }
+    
+    function initMobileMenu() {
+        var menuToggle = document.querySelector('.menu-toggle');
+        var navbarMenu = document.querySelector('.navbar-menu');
+        var navLinks = document.querySelectorAll('.nav-link');
+        
+        if (!menuToggle || !navbarMenu) return;
+        
+        menuToggle.addEventListener('click', function() {
+            navbarMenu.classList.toggle('active');
+            var icon = this.querySelector('i');
+            if (icon) {
+                if (navbarMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
                 }
             }
-            
-            // 移除所有导航链接的active类
-            navLinks.forEach(navLink => {
-                navLink.classList.remove('active');
+        });
+        
+        navLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                navbarMenu.classList.remove('active');
+                var icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
             });
-            
-            // 为当前点击的链接添加active类
-            this.classList.add('active');
-        }
-    });
-});
-
-// 移动端菜单切换
-const menuToggle = document.querySelector('.menu-toggle');
-const navbarMenu = document.querySelector('.navbar-menu');
-const navLinks = document.querySelectorAll('.nav-link');
-
-menuToggle.addEventListener('click', function() {
-    navbarMenu.classList.toggle('active');
-    // 切换菜单图标
-    const icon = this.querySelector('i');
-    if (navbarMenu.classList.contains('active')) {
-        icon.classList.remove('fa-bars');
-        icon.classList.add('fa-times');
-    } else {
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
+        });
     }
-});
-
-// 点击导航链接后关闭移动端菜单
-navLinks.forEach(link => {
-    link.addEventListener('click', function() {
-        navbarMenu.classList.remove('active');
-        const icon = menuToggle.querySelector('i');
-        icon.classList.remove('fa-times');
-        icon.classList.add('fa-bars');
-    });
-});
-
-// 初始化
-window.addEventListener('load', function() {
-    createParticles();
-});
+    
+    function init() {
+        createParticles();
+        initSmoothScroll();
+        initMobileMenu();
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
