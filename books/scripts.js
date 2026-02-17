@@ -575,19 +575,26 @@ function toggleEvent(header) {
 }
 
 // ===================== 弹幕功能（核心修复：按钮表情包不消失） =====================
+let danmakuLaneIndex = 0;
+
 function createDanmaku() {
     if (!isDanmakuOpen || !danmakuContainer) return;
 
     // 随机选弹幕文本
     const text = danmakuList[Math.floor(Math.random() * danmakuList.length)];
-    // 随机高度（避免堆叠，限定在容器内）
-    const containerHeight = danmakuContainer.offsetHeight;
-    const top = Math.random() * (containerHeight - 40); // 40是弹幕高度，避免超出
     // 随机动画时长（8-15秒，避免速度一致）
     const duration = 8 + Math.random() * 7;
     // 随机颜色（青春系配色，保证可读性）
     const colors = ['#ff7e7e', '#7e9fff', '#7eff9f', '#ffd77e', '#ff7ef5'];
     const color = colors[Math.floor(Math.random() * colors.length)];
+
+    // 分层随机高度（更均匀分布）
+    const containerHeight = danmakuContainer.offsetHeight;
+    const laneHeight = 35;
+    const laneCount = Math.floor(containerHeight / laneHeight);
+    const lane = danmakuLaneIndex % laneCount;
+    danmakuLaneIndex++;
+    const top = lane * laneHeight + Math.random() * 10;
 
     // 创建弹幕元素
     const danmaku = document.createElement('div');
@@ -595,7 +602,6 @@ function createDanmaku() {
     danmaku.textContent = text;
     danmaku.style.top = `${top}px`;
     danmaku.style.color = color;
-    danmaku.style.right = '0px'; // 强制初始在最右端
     // 绑定动画（指定动画名称+时长）
     danmaku.style.animation = `danmaku-scroll ${duration}s linear forwards`;
 

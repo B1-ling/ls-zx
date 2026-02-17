@@ -9,13 +9,13 @@
     
     <link rel="icon" href="favicon.ico?v=2" type="image/x-icon" sizes="any">
     <link rel="shortcut icon" href="favicon.ico?v=2" type="image/x-icon">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="books/css/all.min.css">
     <link rel="stylesheet" href="css/main.css">
@@ -28,13 +28,13 @@
 <body>
     <div class="particles"></div>
     
-    <nav class="navbar">
+    <nav class="navbar" id="navbar">
         <div class="navbar-container">
-            <div class="navbar-logo">
+            <a href="index.html" class="navbar-logo">
                 <img src="logo.png" alt="logo" class="logo-img" width="48" height="48" loading="eager" decoding="async">
                 <h2>「笃行致远·拾光成纪」</h2>
-            </div>
-            <div class="navbar-menu">
+            </a>
+            <div class="navbar-menu" id="navbarMenu">
                 <ul class="nav-links">
                     <li><a href="#" class="nav-link active">首页</a></li>
                     <li><a href="#class-history" class="nav-link">班级历史书</a></li>
@@ -45,9 +45,9 @@
                     <li><a href="#photo-wall" class="nav-link">3D图片墙</a></li>
                 </ul>
             </div>
-            <div class="menu-toggle">
+            <button class="menu-toggle" id="menuToggle" aria-label="菜单">
                 <i class="fas fa-bars"></i>
-            </div>
+            </button>
         </div>
     </nav>
     
@@ -62,7 +62,6 @@
             </p>
         </header>
 
-        <!-- 统计数据 -->
         <section class="stats-section">
             <div class="stats-grid">
                 <div class="stat-item">
@@ -84,7 +83,6 @@
             </div>
         </section>
 
-        <!-- 特色功能 -->
         <section class="features-section">
             <h2>我们的特色</h2>
             <div class="features-grid">
@@ -145,7 +143,6 @@
             </div>
         </section>
 
-        <!-- 班级历史书区块 -->
         <section id="class-history" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">班级历史书《一班历史》</h2>
@@ -175,7 +172,7 @@
                         </div>
                     </div>
                     <div style="text-align: center; margin-top: 40px;">
-                        <a href="class-history/index.html" class="btn" style="font-size: 1.2rem; padding: 18px 50px;">
+                        <a href="class-history/index.html" class="btn">
                             <i class="fas fa-arrow-right"></i> 进入历史书
                         </a>
                     </div>
@@ -183,7 +180,6 @@
             </div>
         </section>
 
-        <!-- 定制同学录区块 -->
         <section id="custom-album" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">定制同学录</h2>
@@ -216,7 +212,6 @@
             </div>
         </section>
 
-        <!-- 中国同学录区块 -->
         <section id="china-album" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">入驻中国同学录</h2>
@@ -246,7 +241,7 @@
                         </div>
                     </div>
                     <div style="text-align: center; margin-top: 40px;">
-                        <a href="https://www.chinatxl.com/class/13666" target="_blank" class="btn" style="font-size: 1.2rem; padding: 18px 50px;">
+                        <a href="https://www.chinatxl.com/class/13666" target="_blank" rel="noopener noreferrer" class="btn">
                             <i class="fas fa-external-link-alt"></i> 进入中国同学录
                         </a>
                     </div>
@@ -254,7 +249,6 @@
             </div>
         </section>
 
-        <!-- 音乐专辑区块 -->
         <section id="music-album" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">音乐专辑</h2>
@@ -287,7 +281,6 @@
             </div>
         </section>
 
-        <!-- 线上青春纪念册区块 -->
         <section id="album-card" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">线上青春纪念册</h2>
@@ -317,7 +310,7 @@
                         </div>
                     </div>
                     <div style="text-align: center; margin-top: 40px;">
-                        <a href="books/index.html" class="btn" style="font-size: 1.2rem; padding: 18px 50px;">
+                        <a href="books/index.html" class="btn">
                             <i class="fas fa-arrow-right"></i> 进入纪念册
                         </a>
                     </div>
@@ -325,7 +318,6 @@
             </div>
         </section>
 
-        <!-- 3D图片墙区块 -->
         <section id="photo-wall" class="content-section">
             <div class="content-container">
                 <h2 class="section-title">3D图片墙</h2>
@@ -355,7 +347,7 @@
                         </div>
                     </div>
                     <div style="text-align: center; margin-top: 40px;">
-                        <a href="PicWall/index.html" class="btn" style="font-size: 1.2rem; padding: 18px 50px;">
+                        <a href="PicWall/index.html" class="btn">
                             <i class="fas fa-arrow-right"></i> 进入3D图片墙
                         </a>
                     </div>
