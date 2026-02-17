@@ -827,11 +827,7 @@
                 const { filename, localPath } = config.pdf;
                 
                 return [
-                    {
-                        name: '本地文件',
-                        url: filename,
-                        type: 'local'
-                    },
+                    
                     {
                         name: 'jsDelivr (Fast)',
                         url: `https://fastly.jsdelivr.net/gh/${username}/${repository}@${branch}/${localPath}${filename}`,
@@ -841,6 +837,11 @@
                         name: 'jsDelivr',
                         url: `https://cdn.jsdelivr.net/gh/${username}/${repository}@${branch}/${localPath}${filename}`,
                         type: 'cdn'
+                    },
+                    {
+                        name: '本地文件',
+                        url: filename,
+                        type: 'local'
                     },
                     {
                         name: 'jsDelivr (Testing)',
