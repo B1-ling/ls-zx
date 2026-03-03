@@ -264,57 +264,37 @@ function initImages() {
   // 图片预加载队列
   const preloadQueue = [];
   
-  // 代理服务器配置
+  // 代理服务器配置（经过测试可用的代理）
   const proxyServers = {
-    // 优先代理服务器
+    // 优先使用 - 国内访问较快
     priority: [
       {
-        name: 'images.weserv.nl代理',
-        getUrl: (imgUrl) => 'https://images.weserv.nl/?url=' + encodeURIComponent(imgUrl.replace('https://', ''))
+        name: 'images.weserv.nl',
+        getUrl: (imgUrl) => 'https://images.weserv.nl/?url=' + encodeURIComponent(imgUrl.replace('https://', '').replace('http://', ''))
       }
     ],
-    // 国内代理服务器
-    domestic: [
+    // 备用代理
+    fallback: [
       {
-        name: '百度云加速',
-        getUrl: (imgUrl) => 'https://cors-anywhere.azm.workers.dev/' + encodeURIComponent(imgUrl)
+        name: 'corsproxy.io',
+        getUrl: (imgUrl) => 'https://corsproxy.io/?' + encodeURIComponent(imgUrl)
       },
       {
-        name: '阿里云图片服务',
-        getUrl: (imgUrl) => 'https://img.alicdn.com/tfs/TB1_.OEp8r0gK0jSZFnXXbRRXXa-100-100.png' + encodeURIComponent(imgUrl)
+        name: 'allorigins.win',
+        getUrl: (imgUrl) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(imgUrl)
       },
       {
-        name: '七牛云存储',
-        getUrl: (imgUrl) => 'https://dn-qiniu-avatar.qbox.me/avatar/' + encodeURIComponent(imgUrl)
-      },
-      {
-        name: '又拍云存储',
-        getUrl: (imgUrl) => 'https://upaiyun.com/demo/' + encodeURIComponent(imgUrl)
-      },
-      {
-        name: '360图片代理',
-        getUrl: (imgUrl) => 'https://image.so.com/i?src=image_onebox&q=' + encodeURIComponent(imgUrl)
-      }
-    ],
-    // 国外代理服务器
-    foreign: [
-      {
-        name: 'duckduckgo代理',
-        getUrl: (imgUrl) => 'https://proxy.duckduckgo.com/iu/?u=' + encodeURIComponent(imgUrl)
-      },
-      {
-        name: 'cloudinary代理',
-        getUrl: (imgUrl) => 'https://res.cloudinary.com/demo/image/fetch/' + encodeURIComponent(imgUrl)
-      },
-      {
-        name: 'imgproxy代理',
-        getUrl: (imgUrl) => 'https://imgproxy.net/' + base64Encode(imgUrl)
+        name: 'worker代理',
+        getUrl: (imgUrl) => 'https://picproxy.scrape.center/' + encodeURIComponent(imgUrl)
       }
     ]
   };
   
   // 代理服务器速度测试结果
   let proxySpeedResults = {};
+  
+  // 标记哪些代理已确认失败
+  let failedProxies = new Set();
   
   /**
    * Base64编码函数（兼容所有环境）
@@ -354,22 +334,35 @@ function initImages() {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       
+      let resolved = false;
+      
       img.onload = function() {
+        if (resolved) return;
+        resolved = true;
         const endTime = performance.now();
         const responseTime = endTime - startTime;
         proxySpeedResults[proxy.name] = responseTime;
+        console.log(`代理 ${proxy.name} 速度测试成功: ${responseTime.toFixed(2)}ms`);
         resolve(responseTime);
       };
       
       img.onerror = function() {
-        // 加载失败，设置一个较大的响应时间
+        if (resolved) return;
+        resolved = true;
+        // 加载失败，标记为失败
         proxySpeedResults[proxy.name] = 9999;
+        failedProxies.add(proxy.name);
+        console.log(`代理 ${proxy.name} 速度测试失败`);
         resolve(9999);
       };
       
       // 设置超时
       setTimeout(() => {
+        if (resolved) return;
+        resolved = true;
         proxySpeedResults[proxy.name] = 9999;
+        failedProxies.add(proxy.name);
+        console.log(`代理 ${proxy.name} 速度测试超时`);
         resolve(9999);
       }, 5000);
       
@@ -377,8 +370,11 @@ function initImages() {
         const proxyUrl = proxy.getUrl(testUrl);
         img.src = proxyUrl;
       } catch (error) {
+        if (resolved) return;
+        resolved = true;
         console.error(`代理服务器测试失败: ${proxy.name}`, error);
         proxySpeedResults[proxy.name] = 9999;
+        failedProxies.add(proxy.name);
         resolve(9999);
       }
     });
@@ -389,8 +385,9 @@ function initImages() {
    * @returns {Array} - 排序后的代理服务器列表
    */
   function getOptimalProxies() {
-    // 合并所有代理服务器，优先代理服务器排在最前面
-    const allProxies = [...proxyServers.priority, ...proxyServers.domestic, ...proxyServers.foreign];
+    // 合并所有代理服务器，排除已确认失败的
+    let allProxies = [...proxyServers.priority, ...proxyServers.fallback];
+    allProxies = allProxies.filter(p => !failedProxies.has(p.name));
     
     // 根据速度测试结果排序
     return allProxies.sort((a, b) => {
@@ -405,14 +402,6 @@ function initImages() {
         return 1;
       }
       
-      // 国内代理服务器次之
-      if (proxyServers.domestic.includes(a) && !proxyServers.domestic.includes(b)) {
-        return -1;
-      }
-      if (!proxyServers.domestic.includes(a) && proxyServers.domestic.includes(b)) {
-        return 1;
-      }
-      
       // 相同优先级的按速度排序
       return speedA - speedB;
     });
@@ -423,13 +412,19 @@ function initImages() {
     console.log('=== 开始测试代理服务器速度 ===');
     
     // 合并所有代理服务器
-    const allProxies = [...proxyServers.priority, ...proxyServers.domestic, ...proxyServers.foreign];
+    const allProxies = [...proxyServers.priority, ...proxyServers.fallback];
     
     console.log('测试的代理服务器列表:', allProxies.map(p => p.name));
     
-    // 并行测试所有代理服务器
-    const speedTests = allProxies.map(proxy => testProxySpeed(proxy));
-    await Promise.all(speedTests);
+    // 先测试优先代理
+    for (const proxy of proxyServers.priority) {
+      await testProxySpeed(proxy);
+    }
+    
+    // 然后测试备用代理
+    for (const proxy of proxyServers.fallback) {
+      await testProxySpeed(proxy);
+    }
     
     console.log('=== 代理服务器速度测试结果 ===');
     console.log(proxySpeedResults);
@@ -564,6 +559,11 @@ function initImages() {
             // 设置加载超时
             loadTimeout = setTimeout(() => {
               console.error(`加载超时: ${strategy.name} for ${imgUrl}`);
+              // 标记失败的代理
+              if (strategy.name.includes('代理') || strategy.name.includes('weserv') || strategy.name.includes('cors') || strategy.name.includes('allorigins')) {
+                failedProxies.add(strategy.name);
+                console.log(`标记代理失败: ${strategy.name}, 已失败代理:`, Array.from(failedProxies));
+              }
               tryNextStrategy();
             }, 8000);
             
@@ -585,6 +585,11 @@ function initImages() {
               if (loadTimeout) {
                 clearTimeout(loadTimeout);
                 loadTimeout = null;
+              }
+              // 标记失败的代理
+              if (strategy.name.includes('代理') || strategy.name.includes('weserv') || strategy.name.includes('cors') || strategy.name.includes('allorigins')) {
+                failedProxies.add(strategy.name);
+                console.log(`标记代理失败: ${strategy.name}, 已失败代理:`, Array.from(failedProxies));
               }
               console.warn(`加载失败: ${strategy.name} for ${imgUrl}, 尝试下一个策略`);
               tryNextStrategy();
